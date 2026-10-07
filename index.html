@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Морьтон Парад-2026 — Тасалбар</title>
+<meta name="description" content="Морьтон үржүүлгийн парад 2026.10.11, Хүй долоон худаг. Тасалбар 50,000₮ — сугалаа, хоол, ундаа багтсан. QPay-р төлж QR тасалбараа имэйлээр аваарай.">
+<meta property="og:title" content="Морьтон Парад-2026 — Тасалбар">
+<meta property="og:description" content="2026.10.11 · Хүй долоон худаг · Тасалбар 50,000₮ (сугалаа, хоол, ундаа)">
+<meta property="og:image" content="img/hero.jpg">
+<meta name="theme-color" content="#072a35">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+</head>
+<body class="has-mbar">
+<header class="site-header" id="site-header"></header>
+<main>
+  <section class="hero" id="top">
+    <div class="container">
+      <div>
+        <div class="eyebrow" id="eyebrow">2026.10.11 · Ням гараг</div>
+        <h1><span>Морьтон</span>Парад-2026</h1>
+        <p class="lead">Дэлхийн шилдэг удамт азаргануудын төлүүдийг Морьтон үржүүлгийн парадаар шилж, сонгон авах боломжийг танд олгож байна.</p>
+        <div class="facts" id="facts"></div>
+        <div class="countdown" id="countdown"></div>
+      </div>
+
+      <aside class="buy-card" id="buy">
+        <div class="top"><b>Тасалбар</b><span>Нэг хүнд</span></div>
+        <div class="body">
+          <div class="price" id="price">50,000₮<small>/ ширхэг</small></div>
+          <ul class="incl">
+            <li><span class="ico-wrap"></span>Сугалаа — 25% эр сарваа хожих боломж</li>
+            <li><span class="ico-wrap"></span>Хоол</li>
+            <li><span class="ico-wrap"></span>Ундаа, ус</li>
+          </ul>
+          <div class="meter" id="meter"><div class="bar"><i style="width:0"></i></div><div class="lbl"><span>Үлдсэн <b>…</b></span><span>Нийт 600</span></div></div>
+          <div id="buy-controls">
+            <div class="qty-row">
+              <span class="muted">Тоо ширхэг</span>
+              <div class="stepper"><button type="button" id="minus" aria-label="Хасах">−</button><output id="qty">1</output><button type="button" id="plus" aria-label="Нэмэх">+</button></div>
+            </div>
+            <div class="total-row"><span class="muted">Нийт дүн</span><b id="total">50,000₮</b></div>
+            <button class="btn btn-gold btn-lg btn-block" id="buy-btn" type="button">Тасалбар авах</button>
+            <p class="small muted" id="pay-note" style="margin:10px 0 0;text-align:center">QPay-р төлнө · QR тасалбар имэйлээр ирнэ</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section" id="included">
+    <div class="container">
+      <h2>Тасалбарт багтсан</h2>
+      <p class="sub">Нэг тасалбар — нэг хүн. Тасалбарын дугаар тань сугалааны дугаар болно.</p>
+      <div class="stubs">
+        <div class="stub">
+          <div class="ic" data-ic="gift"></div>
+          <h3>Сугалаа</h3>
+          <p>Сугалааны хонжворт:</p>
+          <ul>
+            <li><b>25% эр сарваа</b></li>
+            <li>TRM брэндийн 10 бүтээгдэхүүн</li>
+            <li>Морьтон Үндэсний Адууны эмнэлгээр үйлчлүүлэх 10 эрх</li>
+          </ul>
+        </div>
+        <div class="stub">
+          <div class="ic" data-ic="food"></div>
+          <h3>Хоол</h3>
+          <p>Тасалбар бүрт хоол багтсан. Тасалбараа үзүүлж авна.</p>
+        </div>
+        <div class="stub">
+          <div class="ic" data-ic="drink"></div>
+          <h3>Ундаа, ус</h3>
+          <p>Тасалбар бүрт ундаа, ус багтсан. Тасалбараа үзүүлж авна.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section dark">
+    <div class="container">
+      <h2>Хэрхэн авах вэ</h2>
+      <p class="sub">Онлайнаар хэдхэн минутад.</p>
+      <div class="steps">
+        <div class="step"><b>Тоогоо сонгоно</b><span>Нэр, утас, имэйлээ оруулна.</span></div>
+        <div class="step"><b>QPay-р төлнө</b><span>Банкны апп эсвэл QR уншуулж төлнө.</span></div>
+        <div class="step"><b>Тасалбар ирнэ</b><span>QR тасалбар дэлгэцэнд гарч, имэйлээр ирнэ.</span></div>
+        <div class="step"><b>Үүдэнд уншуулна</b><span>Утсан дээрээ QR-аа үзүүлээд орно.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>Морьтоны азарганууд</h2>
+      <p class="sub">Парадад дэлхийн шилдэг удамт азаргануудын төлүүд оролцоно.</p>
+      <div class="horses">
+        <div class="horse"><img src="img/dol-haltar.jpg" alt="Дөл халтар" loading="lazy"><span>Дөл халтар</span></div>
+        <div class="horse"><img src="img/henz-haltar.jpg" alt="Хэнз халтар" loading="lazy"><span>Хэнз халтар</span></div>
+        <div class="horse"><img src="img/gal-har.jpg" alt="Гал хар" loading="lazy"><span>Гал хар</span></div>
+        <div class="horse"><img src="img/altangadas.jpg" alt="Алтангадас" loading="lazy"><span>Алтангадас</span></div>
+        <div class="horse"><img src="img/tavan-tsagaan.jpg" alt="Таван цагаан" loading="lazy"><span>Таван цагаан</span></div>
+        <div class="horse"><img src="img/shatar-heer.jpg" alt="Шатар хээр" loading="lazy"><span>Шатар хээр</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="container info-grid">
+      <div class="panel">
+        <h3 style="color:var(--navy);margin-bottom:16px">Арга хэмжээний мэдээлэл</h3>
+        <div class="kv" id="info-kv"></div>
+      </div>
+      <div class="panel">
+        <h3 style="color:var(--navy);margin-bottom:6px">Түгээмэл асуулт</h3>
+        <details class="faq"><summary>Тасалбар маань хаана ирэх вэ?</summary><p>Төлбөр төлөгдмөгц тасалбар дэлгэц дээр гарч, таны оруулсан имэйл рүү QR кодтойгоор илгээгдэнэ. Имэйлээ олохгүй бол Spam хавтсаа шалгаарай.</p></details>
+        <details class="faq"><summary>Нэг тасалбараар хэдэн хүн орох вэ?</summary><p>Нэг тасалбар нэг хүнд. Олон хүнд авах бол тоо ширхгээ нэмнэ — тасалбар бүр тусдаа QR кодтой.</p></details>
+        <details class="faq"><summary>Сугалааны дугаар хаана байх вэ?</summary><p>Тасалбарын дугаар (жишээ нь №11111) нь таны сугалааны дугаар.</p></details>
+        <details class="faq"><summary>Имэйл ирээгүй бол яах вэ?</summary><p>Доорх «Тасалбараа дахин авах» хэсэгт утас эсвэл имэйлээ оруулбал дахин илгээнэ. Эсвэл <span data-phone>7732-0404</span> дугаарт холбогдоно уу.</p></details>
+        <details class="faq"><summary>QR кодоо хэвлэх шаардлагатай юу?</summary><p>Үгүй. Утасныхаа дэлгэц дээр үзүүлэхэд хангалттай. Дэлгэцийн гэрэлтүүлгээ нэмбэл хурдан уншина.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="lookup" style="padding-top:0">
+    <div class="container">
+      <div class="panel" style="max-width:720px">
+        <h3 style="color:var(--navy);margin-bottom:4px">Тасалбараа дахин авах</h3>
+        <p class="muted small" style="margin:0 0 12px">Худалдан авахдаа оруулсан утас эсвэл имэйлээ бичнэ үү — тасалбарыг тань имэйл рүү дахин илгээнэ.</p>
+        <form class="form" id="lookup-form" style="grid-template-columns:1fr auto;align-items:end">
+          <div><input class="input" id="lookup-contact" placeholder="Утас эсвэл имэйл" autocomplete="email" required></div>
+          <button class="btn btn-navy" type="submit">Илгээх</button>
+        </form>
+        <div id="lookup-msg" style="margin-top:10px"></div>
+        <div id="my-orders"></div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="site-footer" id="site-footer"></footer>
+
+<div class="mbar" id="mbar"><div><b id="mbar-price">50,000₮</b><small id="mbar-left">Тасалбар</small></div><button class="btn btn-gold" type="button" id="mbar-btn">Тасалбар авах</button></div>
+
+<div class="modal-bg" id="modal" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-title">
+    <div class="modal-head"><b id="m-title">Тасалбар авах</b><button type="button" id="m-close" aria-label="Хаах">×</button></div>
+    <div class="modal-body">
+      <div class="summary"><span><span id="m-qty">1</span> × <span id="m-price">50,000₮</span></span><b id="m-total">50,000₮</b></div>
+      <form class="form" id="order-form" novalidate>
+        <div><label for="f-name">Овог нэр <span class="req">*</span></label><input class="input" id="f-name" name="name" autocomplete="name" maxlength="80" required></div>
+        <div><label for="f-phone">Утасны дугаар <span class="req">*</span></label><input class="input" id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="99112233" maxlength="16" required></div>
+        <div><label for="f-email">Имэйл <span class="req">*</span></label><input class="input" id="f-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="ner@gmail.com" maxlength="120" required>
+          <div class="hint">QR тасалбар энэ хаяг руу очно — зөв бичээрэй.</div></div>
+        <div class="hp" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
+        <div><label for="f-qty">Тоо ширхэг</label><select class="input" id="f-qty" name="qty"></select></div>
+        <div id="f-err"></div>
+        <button class="btn btn-gold btn-lg btn-block" type="submit" id="f-submit">QPay-р төлөх</button>
+        <p class="small muted" style="margin:0;text-align:center" id="f-note">Дараагийн алхамд QPay-ийн QR болон банкны аппын холбоос гарна. Төлбөрөө <b id="f-hold">20</b> минутын дотор хийнэ үү.</p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { api, esc, money, fmtDT, fmtDay, fmtWeekday, fmtTime, startCountdown, renderChrome, ICONS, toast, rememberOrder, store, siteBase, configured } from './js/app.js';
+
+const $ = id => document.getElementById(id);
+let info = { price: 50000, total: 600, available: null, max_per_order: 10, event_at: '2026-10-11T02:00:00Z', location: 'Хүй долоон худаг', phone: '7732-0404', hold_minutes: 20, sales_open: true, pay_mode: 'qpay' };
+let qty = 1;
+
+document.querySelectorAll('.incl .ico-wrap').forEach(e => e.outerHTML = ICONS.check);
+document.querySelectorAll('[data-ic]').forEach(e => e.innerHTML = ICONS[e.dataset.ic]);
+
+function salesState() {
+  if (info.available === 0) return 'soldout';
+  if (!info.sales_open) return 'closed';
+  if (info.sales_close && new Date(info.sales_close) < new Date()) return 'ended';
+  if (info.pay_mode === 'none') return 'nopay';
+  return 'open';
+}
+
+function render() {
+  renderChrome(info);
+  bindLookupLinks();
+  $('eyebrow').textContent = `${fmtDay(info.event_at)} · ${fmtWeekday(info.event_at)}`;
+  const mapUrl = 'https://www.google.com/maps/search/' + encodeURIComponent(info.location + ' Mongolia');
+  $('facts').innerHTML = `<span>${ICONS.cal}${fmtDay(info.event_at)} · ${fmtTime(info.event_at)}</span>
+    <span>${ICONS.pin}<a href="${mapUrl}" target="_blank" rel="noopener">${esc(info.location)}</a></span>
+    <span>${ICONS.phone}<a href="tel:${esc(String(info.phone).replace(/\D/g, ''))}">${esc(info.phone)}</a></span>`;
+  $('price').innerHTML = `${money(info.price)}<small>/ ширхэг</small>`;
+  $('mbar-price').textContent = money(info.price);
+  const total = info.total || 600, avail = info.available;
+  if (avail != null) {
+    const sold = total - avail;
+    $('meter').innerHTML = `<div class="bar"><i style="width:${Math.min(100, sold / total * 100).toFixed(1)}%"></i></div>
+      <div class="lbl"><span>Үлдсэн <b>${avail}</b> тасалбар</span><span>Нийт ${total}</span></div>`;
+    $('mbar-left').textContent = avail > 0 ? `Үлдсэн ${avail} тасалбар` : 'Дууссан';
+  }
+  document.querySelectorAll('[data-phone]').forEach(e => e.textContent = info.phone);
+  $('info-kv').innerHTML = `
+    <div class="ic">${ICONS.cal}</div><div><small>Огноо, цаг</small><b>${fmtDay(info.event_at)}, ${fmtWeekday(info.event_at)} · ${fmtTime(info.event_at)}</b></div>
+    <div class="ic">${ICONS.pin}</div><div><small>Байршил</small><b><a href="${mapUrl}" target="_blank" rel="noopener">${esc(info.location)}</a></b></div>
+    <div class="ic">${ICONS.phone}</div><div><small>Лавлах утас</small><b><a href="tel:${esc(String(info.phone).replace(/\D/g, ''))}">${esc(info.phone)}</a></b></div>
+    <div class="ic">${ICONS.ticket.replace('<svg', '<svg class="ico"')}</div><div><small>Тасалбар</small><b>${money(info.price)} · дугаар ${info.start_no || 11111}–${(info.start_no || 11111) + total - 1}</b></div>`;
+
+  const st = salesState();
+  const ctrl = $('buy-controls');
+  if (st !== 'open') {
+    const msg = { soldout: 'Тасалбар дууслаа', closed: 'Онлайн борлуулалт түр хаагдсан', ended: 'Онлайн борлуулалт дууссан', nopay: 'Борлуулалт удахгүй нээгдэнэ' }[st];
+    ctrl.innerHTML = `<div class="soldout">${msg}</div><p class="small muted" style="margin:10px 0 0;text-align:center">Лавлах: ${esc(info.phone)}</p>`;
+    $('mbar-btn').disabled = true; $('mbar-btn').textContent = msg.split(' ').slice(-1)[0] === 'дууслаа' ? 'Дууссан' : 'Хаагдсан';
+  }
+  $('pay-note').textContent = info.pay_mode === 'transfer' ? 'Дансаар төлнө · QR тасалбар имэйлээр ирнэ' : 'QPay-р төлнө · QR тасалбар имэйлээр ирнэ';
+  $('f-submit').textContent = info.pay_mode === 'transfer' ? 'Захиалах' : 'QPay-р төлөх';
+  $('f-note').innerHTML = info.pay_mode === 'transfer'
+    ? `Дараагийн алхамд дансны мэдээлэл гарна. Төлбөр баталгаажмагц тасалбар имэйлээр ирнэ.`
+    : `Дараагийн алхамд QPay-ийн QR болон банкны аппын холбоос гарна. Төлбөрөө <b>${info.hold_minutes}</b> минутын дотор хийнэ үү.`;
+  updateQty(qty);
+}
+
+function maxQty() { return Math.max(1, Math.min(info.max_per_order || 10, info.available ?? 10)); }
+function updateQty(n) {
+  qty = Math.max(1, Math.min(maxQty(), n));
+  $('qty').textContent = qty;
+  $('minus').disabled = qty <= 1;
+  $('plus').disabled = qty >= maxQty();
+  $('total').textContent = money(qty * info.price);
+  $('m-qty').textContent = qty; $('m-price').textContent = money(info.price); $('m-total').textContent = money(qty * info.price);
+  const sel = $('f-qty');
+  sel.innerHTML = Array.from({ length: maxQty() }, (_, i) => `<option value="${i + 1}"${i + 1 === qty ? ' selected' : ''}>${i + 1} ширхэг — ${money((i + 1) * info.price)}</option>`).join('');
+}
+$('minus').onclick = () => updateQty(qty - 1);
+$('plus').onclick = () => updateQty(qty + 1);
+$('f-qty').onchange = e => updateQty(Number(e.target.value));
+
+// модаль
+const modal = $('modal');
+function openModal() {
+  if (salesState() !== 'open') { document.getElementById('buy').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+  const last = store.get('buyer');
+  if (last) { $('f-name').value ||= last.name || ''; $('f-phone').value ||= last.phone || ''; $('f-email').value ||= last.email || ''; }
+  modal.classList.add('open'); modal.setAttribute('aria-hidden', 'false');
+  setTimeout(() => ($('f-name').value ? $('f-email') : $('f-name')).focus(), 50);
+}
+function closeModal() { modal.classList.remove('open'); modal.setAttribute('aria-hidden', 'true'); }
+$('buy-btn').onclick = openModal;
+$('mbar-btn').onclick = openModal;
+$('m-close').onclick = closeModal;
+modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+if (location.hash === '#buy') setTimeout(openModal, 300);
+
+$('order-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const f = e.target, err = $('f-err'), btn = $('f-submit');
+  err.innerHTML = '';
+  const name = f.name.value.trim(), phone = f.phone.value.trim(), email = f.email.value.trim();
+  const bad = name.length < 2 ? 'Овог нэрээ оруулна уу.'
+    : !/^\+?\d{8,15}$/.test(phone.replace(/[\s-]/g, '')) ? 'Утасны дугаараа зөв оруулна уу (8 оронтой).'
+    : !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) ? 'Имэйл хаягаа зөв оруулна уу.' : '';
+  if (bad) { err.innerHTML = `<div class="alert error">${bad}</div>`; return; }
+  const label = btn.textContent;
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Түр хүлээнэ үү…';
+  try {
+    const r = await api('create', { name, phone, email, qty, website: f.website.value, site: siteBase() });
+    store.set('buyer', { name, phone, email });
+    rememberOrder(r.code, r.key);
+    location.href = `order.html?c=${encodeURIComponent(r.code)}&k=${encodeURIComponent(r.key)}`;
+  } catch (ex) {
+    err.innerHTML = `<div class="alert error">${esc(ex.message)}</div>`;
+    btn.disabled = false; btn.textContent = label;
+    loadInfo();
+  }
+});
+
+// утасны доод самбар — худалдан авах карт харагдахгүй үед
+const io = new IntersectionObserver(([en]) => $('mbar').classList.toggle('show', !en.isIntersecting), { threshold: 0 });
+io.observe($('buy'));
+
+// дахин авах
+function bindLookupLinks() {
+  document.querySelectorAll('[data-lookup]').forEach(a => a.onclick = ev => { ev.preventDefault(); $('lookup').scrollIntoView({ behavior: 'smooth' }); setTimeout(() => $('lookup-contact').focus(), 400); });
+}
+$('lookup-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const msg = $('lookup-msg');
+  msg.innerHTML = '<div class="alert info">Шалгаж байна…</div>';
+  try {
+    const r = await api('lookup', { contact: $('lookup-contact').value });
+    msg.innerHTML = `<div class="alert ok">${esc(r.message)}</div>`;
+  } catch (ex) { msg.innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; }
+});
+const mine = store.get('orders', []);
+if (mine.length) {
+  $('my-orders').innerHTML = `<p class="small muted" style="margin:16px 0 6px">Энэ төхөөрөмж дээрх захиалгууд:</p>` +
+    mine.map(o => `<a class="btn btn-light btn-sm" style="margin:0 6px 6px 0" href="order.html?c=${encodeURIComponent(o.code)}&k=${encodeURIComponent(o.key)}">${esc(o.code)}</a>`).join('');
+}
+
+let stopCd;
+async function loadInfo() {
+  try {
+    const i = await api('info');
+    const changed = !stopCd || i.event_at !== info.event_at;
+    info = { ...info, ...i };
+    render();
+    if (changed) { stopCd && stopCd(); stopCd = startCountdown($('countdown'), info.event_at, info.now); }
+  } catch (ex) {
+    if (!stopCd) { render(); stopCd = startCountdown($('countdown'), info.event_at); }
+    if (configured) toast(ex.message);
+  }
+}
+render();
+loadInfo();
+setInterval(loadInfo, 30_000);
+</script>
+</body>
+</html>

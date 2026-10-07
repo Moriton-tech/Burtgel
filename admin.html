@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Админ — Морьтон Парад-2026</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#072a35">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+  body { background: #eef0ee; }
+  .login { max-width: 400px; margin: 60px auto; }
+  .login .panel { padding: 26px; }
+  .login .mark { width: 64px; height: 64px; background: var(--logo) center / contain no-repeat; margin: 0 auto 10px; filter: drop-shadow(0 2px 3px rgba(0,0,0,.2)); }
+  .topbar { display: flex; align-items: center; gap: 10px; color: #fff; font-size: 13px; }
+  .topbar .who { opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+  .role { background: var(--gold); color: var(--navy-dd); font-weight: 800; font-size: 11px; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; }
+  .tabs { display: flex; gap: 4px; overflow-x: auto; background: #fff; border-radius: 14px; padding: 6px; margin: 18px 0; box-shadow: var(--shadow); scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tabs button { border: none; background: none; padding: 10px 14px; border-radius: 10px; font-weight: 700; color: var(--muted); cursor: pointer; white-space: nowrap; font-size: 14px; }
+  .tabs button.active { background: var(--navy); color: #fff; }
+  .tabs button .dot { display: inline-block; min-width: 18px; padding: 0 5px; border-radius: 9px; background: var(--red); color: #fff; font-size: 11px; margin-left: 5px; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .kpi { background: #fff; border-radius: 14px; padding: 16px; box-shadow: var(--shadow); }
+  .kpi span { color: var(--muted); font-size: 12.5px; font-weight: 600; }
+  .kpi b { display: block; font-family: var(--display); font-size: 34px; color: var(--navy); line-height: 1.1; margin-top: 2px; }
+  .kpi small { color: var(--muted); font-size: 12px; }
+  .kpi.warn { background: var(--red-l); } .kpi.warn b { color: var(--red); }
+  .kpi .bar { height: 6px; border-radius: 9px; background: #ece8dc; margin-top: 8px; overflow: hidden; } .kpi .bar i { display: block; height: 100%; background: var(--gold); }
+  .chips-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 99px; font-size: 12.5px; font-weight: 700; background: #fff; box-shadow: var(--shadow); }
+  .pill.ok { color: var(--ok); } .pill.bad { color: var(--red); } .pill.mid { color: #7a5b12; }
+  .days { display: flex; align-items: flex-end; gap: 8px; height: 150px; padding: 10px 4px 0; }
+  .days div { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; font-size: 11px; color: var(--muted); min-width: 0; }
+  .days i { display: block; width: 100%; max-width: 46px; background: var(--navy); border-radius: 6px 6px 0 0; min-height: 2px; }
+  .days b { color: var(--ink); font-size: 12px; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
+  .filters .input { width: auto; min-width: 140px; padding: 9px 12px; font-size: 14px; }
+  .filters .grow { flex: 1; min-width: 200px; }
+  .table-wrap { background: #fff; border-radius: 14px; box-shadow: var(--shadow); overflow-x: auto; }
+  table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
+  table.tbl th, table.tbl td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  table.tbl th { background: #f7f5ef; color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: .4px; position: sticky; top: 0; }
+  table.tbl tr:hover td { background: #fbfaf6; }
+  table.tbl td small { color: var(--muted); display: block; }
+  .tag { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11.5px; font-weight: 700; white-space: nowrap; }
+  .tag.paid, .tag.valid, .tag.yes { background: var(--ok-l); color: var(--ok); }
+  .tag.pending { background: var(--amber-l); color: #7a4f08; }
+  .tag.expired { background: #ececec; color: #555; }
+  .tag.cancelled, .tag.refund, .tag.no { background: var(--red-l); color: var(--red); }
+  .tag.gray { background: #f0efe9; color: var(--muted); }
+  .acts { display: flex; gap: 5px; flex-wrap: wrap; }
+  .nums { font-family: ui-monospace, Consolas, monospace; font-size: 12.5px; max-width: 180px; }
+  .count-line { font-size: 13px; color: var(--muted); margin: 8px 2px; }
+  /* уншуулах */
+  .scan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 820px) { .scan-grid { grid-template-columns: 1fr; } }
+  .seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; background: #fff; padding: 6px; border-radius: 14px; box-shadow: var(--shadow); margin-bottom: 12px; }
+  .seg button { border: none; border-radius: 10px; padding: 12px 6px; font-weight: 800; font-size: 15px; background: none; color: var(--muted); cursor: pointer; }
+  .seg button.active { background: var(--gold); color: var(--navy-dd); }
+  .cam { position: relative; background: #000; border-radius: 16px; overflow: hidden; aspect-ratio: 1 / 1; display: grid; place-items: center; color: #fff; }
+  .cam video { width: 100%; height: 100%; object-fit: cover; }
+  .cam .frame { position: absolute; inset: 18%; border: 3px solid rgba(201,162,74,.9); border-radius: 18px; box-shadow: 0 0 0 999px rgba(0,0,0,.25); pointer-events: none; }
+  .cam .off { text-align: center; padding: 20px; }
+  .result { border-radius: 16px; padding: 22px; text-align: center; min-height: 190px; display: flex; flex-direction: column; justify-content: center; background: #fff; box-shadow: var(--shadow); }
+  .result .big { font-family: var(--display); font-size: 34px; line-height: 1.05; text-transform: uppercase; letter-spacing: .5px; }
+  .result .no { font-family: var(--display); font-size: 54px; line-height: 1; margin: 6px 0; }
+  .result.ok { background: #1f7a4d; color: #fff; }
+  .result.already { background: #e2a72e; color: #2d1f00; }
+  .result.bad { background: var(--red); color: #fff; }
+  .result.info { background: var(--navy); color: #fff; }
+  .recent { margin-top: 12px; font-size: 13px; }
+  .recent div { display: flex; justify-content: space-between; gap: 8px; padding: 7px 10px; border-bottom: 1px solid var(--line); background: #fff; }
+  .recent div:first-child { border-radius: 10px 10px 0 0; }
+  /* сугалаа */
+  .draw-stage { background: radial-gradient(circle at 50% 30%, #0f4a5b, var(--navy-dd) 70%); color: #fff; border-radius: 20px; padding: 30px 20px; text-align: center; min-height: 340px; display: flex; flex-direction: column; justify-content: center; position: relative; }
+  .draw-stage .prize { color: var(--gold-l); font-weight: 800; letter-spacing: 2px; text-transform: uppercase; font-size: 15px; }
+  .draw-stage .num { font-family: var(--display); font-size: clamp(80px, 16vw, 180px); color: var(--gold-l); line-height: 1; margin: 10px 0; font-variant-numeric: tabular-nums; }
+  .draw-stage .who { font-size: 22px; font-weight: 700; min-height: 30px; }
+  .draw-stage .fs { position: absolute; top: 12px; right: 12px; }
+  .draw-stage:fullscreen { border-radius: 0; }
+  .draw-stage:fullscreen .num { font-size: 32vh; }
+  .preset { border: 1px solid var(--line); background: #fff; border-radius: 99px; padding: 6px 12px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .preset:hover { border-color: var(--gold); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 820px) { .grid2 { grid-template-columns: 1fr; } }
+  .form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 520px) { .form .row { grid-template-columns: 1fr; } }
+  .switch { display: flex; align-items: center; gap: 10px; font-weight: 700; cursor: pointer; }
+  .switch input { width: 20px; height: 20px; accent-color: var(--ok); }
+  .issued { margin-top: 14px; }
+  h3.h { color: var(--navy); margin: 0 0 12px; font-size: 17px; }
+  @media (max-width: 640px) {
+    .topbar .who, .site-header .brand small { display: none; }
+    .scan-grid > div:last-child { order: -1; }
+    .recent { max-height: 132px; overflow: hidden; }
+    .result { min-height: 150px; padding: 16px; }
+    .result .no { font-size: 46px; }
+    .cam { aspect-ratio: 4 / 3; }
+    .tabs button { padding: 9px 11px; font-size: 13.5px; }
+  }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container">
+  <a class="brand" href="index.html"><span class="mark"></span><span><b>МОРЬТОН</b><small>Парад-2026 · Админ</small></span></a>
+  <div class="topbar hidden" id="topbar"><span class="role" id="role"></span><span class="who" id="who"></span><button class="btn btn-ghost btn-sm" id="logout">Гарах</button></div>
+</div></header>
+
+<main class="container">
+  <!-- нэвтрэх -->
+  <section class="login hidden" id="login">
+    <div class="panel">
+      <div class="mark"></div>
+      <h2 style="text-align:center;color:var(--navy);font-size:20px">Админ нэвтрэх</h2>
+      <form class="form" id="login-form">
+        <div><label for="l-email">Имэйл</label><input class="input" id="l-email" type="email" autocomplete="username" required></div>
+        <div><label for="l-pass">Нууц үг</label><input class="input" id="l-pass" type="password" autocomplete="current-password" required></div>
+        <div id="l-err"></div>
+        <button class="btn btn-navy btn-block" type="submit">Нэвтрэх</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="hidden" id="app">
+    <nav class="tabs" id="tabs"></nav>
+
+    <!-- САМБАР -->
+    <div class="tab" data-tab="dash">
+      <div class="chips-row" id="sys"></div>
+      <div class="kpis" id="kpis"></div>
+      <div class="panel"><h3 class="h">Өдрөөр борлуулалт (ширхэг)</h3><div class="days" id="days"></div></div>
+    </div>
+
+    <!-- ЗАХИАЛГА -->
+    <div class="tab" data-tab="orders">
+      <div class="filters">
+        <input class="input grow" id="o-q" placeholder="Хайх: код, нэр, утас, имэйл, дугаар">
+        <select class="input" id="o-st">
+          <option value="">Бүх төлөв</option><option value="paid">Төлөгдсөн</option><option value="pending">Хүлээгдэж буй</option>
+          <option value="expired">Хугацаа дууссан</option><option value="cancelled">Цуцалсан</option><option value="refund">Буцаалт хэрэгтэй</option>
+        </select>
+        <select class="input" id="o-src"><option value="">Онлайн + гараар</option><option value="online">Онлайн</option><option value="manual">Гараар</option></select>
+        <button class="btn btn-light btn-sm" id="o-reload">↻ Шинэчлэх</button>
+        <button class="btn btn-light btn-sm" id="o-csv">⬇ Excel (CSV)</button>
+      </div>
+      <div class="count-line" id="o-count"></div>
+      <div class="table-wrap"><table class="tbl"><thead><tr><th>Огноо</th><th>Код</th><th>Худалдан авагч</th><th>Тоо</th><th>Дүн</th><th>Төлбөр</th><th>Төлөв</th><th>Тасалбар</th><th>Үйлдэл</th></tr></thead><tbody id="o-body"></tbody></table></div>
+    </div>
+
+    <!-- ТАСАЛБАР -->
+    <div class="tab" data-tab="tickets">
+      <div class="filters">
+        <input class="input grow" id="t-q" placeholder="Хайх: дугаар, нэр, утас, захиалгын код">
+        <select class="input" id="t-f">
+          <option value="valid">Хүчинтэй</option><option value="">Бүгд</option><option value="entered">Орсон</option><option value="notentered">Ороогүй</option><option value="cancelled">Цуцалсан</option>
+        </select>
+        <button class="btn btn-light btn-sm" id="t-reload">↻ Шинэчлэх</button>
+        <button class="btn btn-light btn-sm" id="t-csv">⬇ Excel (CSV)</button>
+      </div>
+      <div class="count-line" id="t-count"></div>
+      <div class="table-wrap"><table class="tbl"><thead><tr><th>№</th><th>Эзэмшигч</th><th>Захиалга</th><th>Төлөв</th><th>Орсон</th><th>Хоол</th><th>Ундаа</th><th>Үйлдэл</th></tr></thead><tbody id="t-body"></tbody></table></div>
+    </div>
+
+    <!-- УНШУУЛАХ -->
+    <div class="tab" data-tab="scan">
+      <div class="seg" id="seg"><button data-mode="entry" class="active">Орох</button><button data-mode="food">Хоол</button><button data-mode="drink">Ундаа</button></div>
+      <div class="scan-grid">
+        <div>
+          <div class="cam" id="cam"><div class="off" id="cam-off"><p style="margin:0 0 12px">QR уншуулах камер</p><button class="btn btn-gold" id="cam-on">📷 Камер асаах</button></div></div>
+          <form class="filters" id="manual" style="margin-top:12px">
+            <input class="input grow" id="m-code" placeholder="Тасалбарын дугаар (11111) эсвэл код" inputmode="numeric" autocomplete="off">
+            <button class="btn btn-navy" type="submit">Шалгах</button>
+          </form>
+        </div>
+        <div>
+          <div class="result" id="result"><div class="muted">QR уншуулах эсвэл дугаар оруулна уу.</div></div>
+          <div class="recent" id="recent"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ГАРААР ОЛГОХ -->
+    <div class="tab" data-tab="issue">
+      <div class="grid2">
+        <div class="panel">
+          <h3 class="h">Тасалбар гараар олгох</h3>
+          <p class="small muted" style="margin-top:-6px">Бэлнээр, дансаар, QPay терминалаар төлсөн эсвэл урилгаар үнэгүй олгох. Имэйл бичвэл тасалбар имэйлээр очно.</p>
+          <form class="form" id="issue-form">
+            <div><label>Овог нэр <span class="req">*</span></label><input class="input" name="name" required maxlength="80"></div>
+            <div class="row">
+              <div><label>Утас</label><input class="input" name="phone" type="tel" inputmode="tel"></div>
+              <div><label>Имэйл</label><input class="input" name="email" type="email"></div>
+            </div>
+            <div class="row">
+              <div><label>Тоо ширхэг <span class="req">*</span></label><input class="input" name="qty" type="number" min="1" max="100" value="1" required></div>
+              <div><label>Төлбөрийн хэлбэр</label><select class="input" name="method"><option value="cash">Бэлэн</option><option value="transfer">Дансаар</option><option value="card">Карт</option><option value="qpay">QPay (терминал)</option><option value="free">Үнэгүй / урилга</option></select></div>
+            </div>
+            <div><label>Дүн (₮)</label><input class="input" name="amount" type="number" min="0" step="1000"><div class="hint" id="i-hint"></div></div>
+            <div><label>Тэмдэглэл</label><input class="input" name="note" maxlength="200"></div>
+            <div id="i-err"></div>
+            <button class="btn btn-gold btn-block" type="submit">Тасалбар олгох</button>
+          </form>
+        </div>
+        <div class="panel"><h3 class="h">Олгосон тасалбар</h3><div class="issued" id="issued"><p class="muted small">Энд QR тасалбар гарна — худалдан авагч утсаараа уншуулж эсвэл холбоосыг нь авч болно.</p></div></div>
+      </div>
+    </div>
+
+    <!-- СУГАЛАА -->
+    <div class="tab" data-tab="draw">
+      <div class="grid2">
+        <div class="panel">
+          <h3 class="h">Сугалаа татах</h3>
+          <form class="form" id="draw-form">
+            <div><label>Шагнал <span class="req">*</span></label><input class="input" id="d-prize" required maxlength="120" placeholder="Жишээ: 25% эр сарваа">
+              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px" id="presets"></div></div>
+            <div><label>Хэнээс сугалах</label><select class="input" id="d-pool"><option value="entered">Зөвхөн ирсэн (орохдоо уншуулсан) тасалбар</option><option value="all">Бүх хүчинтэй тасалбар</option></select></div>
+            <div id="d-err"></div>
+            <button class="btn btn-gold btn-lg btn-block" type="submit" id="d-btn">🎲 Сугалах</button>
+            <p class="small muted" style="margin:0">Нэг тасалбар хоёр удаа хожихгүй. Хожигчийг «Хүчингүй» болговол дахин оролцоно.</p>
+          </form>
+        </div>
+        <div class="draw-stage" id="stage">
+          <button class="btn btn-ghost btn-sm fs" id="fs" type="button">⛶ Дэлгэц дүүрэн</button>
+          <div class="prize" id="s-prize">Морьтон Парад-2026 · Сугалаа</div>
+          <div class="num" id="s-num">— — —</div>
+          <div class="who" id="s-who"></div>
+        </div>
+      </div>
+      <h3 class="h" style="margin-top:22px">Хожигчид</h3>
+      <div class="table-wrap"><table class="tbl" style="min-width:640px"><thead><tr><th>Цаг</th><th>Шагнал</th><th>№</th><th>Хожигч</th><th>Утас</th><th></th></tr></thead><tbody id="w-body"></tbody></table></div>
+    </div>
+
+    <!-- ТОХИРГОО -->
+    <div class="tab" data-tab="settings">
+      <div class="grid2">
+        <div class="panel">
+          <h3 class="h">Арга хэмжээ, борлуулалт</h3>
+          <form class="form" id="set-form">
+            <label class="switch"><input type="checkbox" name="sales_open"> Онлайн борлуулалт нээлттэй</label>
+            <div><label>Арга хэмжээний нэр</label><input class="input" name="event_name"></div>
+            <div class="row">
+              <div><label>Парад эхлэх цаг (тоолуур)</label><input class="input" name="event_at" type="datetime-local"></div>
+              <div><label>Онлайн борлуулалт хаагдах</label><input class="input" name="sales_until" type="datetime-local"><div class="hint">Хоосон бол парадын өдөр 18:00</div></div>
+            </div>
+            <div class="row">
+              <div><label>Байршил</label><input class="input" name="location"></div>
+              <div><label>Утас</label><input class="input" name="phone"></div>
+            </div>
+            <div class="row">
+              <div><label>Тасалбарын үнэ (₮)</label><input class="input" name="price" type="number" min="0" step="1000"></div>
+              <div><label>Нэг захиалгад дээд тоо</label><input class="input" name="max_per_order" type="number" min="1" max="100"></div>
+            </div>
+            <div class="row">
+              <div><label>Эхлэх дугаар</label><input class="input" name="start_no" type="number" min="1"></div>
+              <div><label>Нийт тасалбар</label><input class="input" name="total" type="number" min="1"></div>
+            </div>
+            <div class="row">
+              <div><label>QPay төлөх хугацаа (минут)</label><input class="input" name="hold_minutes" type="number" min="5" max="1440"></div>
+              <div><label>Дансаар төлөх хугацаа (цаг)</label><input class="input" name="transfer_hold_hours" type="number" min="1" max="168"></div>
+            </div>
+            <div><label>Дансны мэдээлэл (QPay тохируулаагүй үед)</label><textarea class="input" name="bank_info" placeholder="Хаан банк&#10;Данс: 5000 000 000&#10;Хүлээн авагч: Морьтон ХХК"></textarea></div>
+            <div><label>Шинэ борлуулалтын мэдэгдэл очих имэйл</label><input class="input" name="notify_email" placeholder="ner@moriton.mn, ner2@moriton.mn"><div class="hint">Хүн тасалбар авах бүрт энд имэйл очно. Таслалаар олон хаяг.</div></div>
+            <div><label>Сайтын хаяг</label><input class="input" name="site_url" placeholder="https://ner.github.io/parade/"><div class="hint">Имэйл дэх QR, холбоосонд ашиглана.</div></div>
+            <div id="s-msg"></div>
+            <button class="btn btn-navy btn-block" type="submit">Хадгалах</button>
+          </form>
+        </div>
+        <div>
+          <div class="panel" style="margin-bottom:16px">
+            <h3 class="h">Холболт шалгах</h3>
+            <div class="form">
+              <div class="filters" style="margin:0"><button class="btn btn-light btn-sm" id="test-qpay">QPay шалгах</button><span id="qpay-msg" class="small"></span></div>
+              <div class="filters" style="margin:0"><input class="input grow" id="test-to" type="email" placeholder="Туршилтын имэйл хүлээн авах хаяг"><button class="btn btn-light btn-sm" id="test-mail">Имэйл илгээх</button></div>
+              <div id="mail-msg" class="small"></div>
+            </div>
+          </div>
+          <div class="panel">
+            <h3 class="h">Ажилтан, эрх</h3>
+            <p class="small muted" style="margin-top:-6px"><b>Админ</b> — бүх эрх. <b>Ажилтан</b> — зөвхөн самбар харах, QR уншуулах (үүдний ажилтан).</p>
+            <div id="staff"></div>
+            <form class="form" id="staff-form" style="margin-top:12px">
+              <div class="row"><input class="input" name="email" type="email" placeholder="Имэйл" required><input class="input" name="password" type="text" placeholder="Нууц үг (шинэ хэрэглэгчид)" autocomplete="new-password"></div>
+              <div class="row"><select class="input" name="role"><option value="staff">Ажилтан (уншуулагч)</option><option value="admin">Админ</option></select><button class="btn btn-navy" type="submit">Нэмэх</button></div>
+              <div id="staff-msg"></div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="modal-bg" id="modal"><div class="modal"><div class="modal-head"><b id="mh">…</b><button type="button" id="mx">×</button></div><div class="modal-body" id="mb"></div></div></div>
+
+<script src="js/vendor/jsQR.js"></script>
+<script type="module">
+import { api as rawApi, auth, esc, money, fmtDT, fmtTime, toast, qrSvg, ticketLink, siteBase, configured } from './js/app.js';
+
+const $ = id => document.getElementById(id);
+let me = null, stats = null, orders = [], tickets = [], settings = null, mode = 'entry';
+const METHOD = { qpay: 'QPay', transfer: 'Данс', cash: 'Бэлэн', card: 'Карт', free: 'Үнэгүй' };
+const STATUS = { paid: 'Төлөгдсөн', pending: 'Хүлээгдэж буй', expired: 'Хугацаа дууссан', cancelled: 'Цуцалсан', refund: 'Буцаалт хэрэгтэй' };
+
+async function api(action, body = {}) {
+  const tok = await auth.token();
+  if (!tok) { showLogin(); throw new Error('Дахин нэвтэрнэ үү.'); }
+  try { return await rawApi(action, body, tok); }
+  catch (e) { if (e.status === 401) { auth.logout(); showLogin(); } throw e; }
+}
+
+// ---------------- нэвтрэх
+function showLogin(msg) {
+  $('app').classList.add('hidden'); $('topbar').classList.add('hidden'); $('login').classList.remove('hidden');
+  if (msg) $('l-err').innerHTML = `<div class="alert error">${esc(msg)}</div>`;
+}
+$('login-form').onsubmit = async e => {
+  e.preventDefault();
+  $('l-err').innerHTML = '';
+  try { await auth.login($('l-email').value.trim(), $('l-pass').value); await boot(); }
+  catch (ex) { $('l-err').innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; }
+};
+$('logout').onclick = () => { auth.logout(); stopCam(); location.reload(); };
+
+// ---------------- табууд
+const TABS = [['dash', 'Самбар', 'staff'], ['orders', 'Захиалга', 'admin'], ['tickets', 'Тасалбар', 'admin'], ['scan', 'Уншуулах', 'staff'],
+  ['issue', 'Гараар олгох', 'admin'], ['draw', 'Сугалаа', 'admin'], ['settings', 'Тохиргоо', 'admin']];
+function buildTabs() {
+  const allowed = TABS.filter(t => me.role === 'admin' || t[2] === 'staff');
+  $('tabs').innerHTML = allowed.map(t => `<button data-t="${t[0]}">${t[1]}<span class="dot hidden" id="dot-${t[0]}"></span></button>`).join('');
+  $('tabs').onclick = e => { const b = e.target.closest('button'); if (b) show(b.dataset.t); };
+  let first = (location.hash || '').slice(1);
+  if (!allowed.some(t => t[0] === first)) first = me.role === 'admin' ? 'dash' : 'scan';
+  show(first);
+}
+function show(t) {
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('active', b.dataset.t === t));
+  document.querySelectorAll('.tab').forEach(d => d.classList.toggle('hidden', d.dataset.tab !== t));
+  history.replaceState(null, '', '#' + t);
+  if (t !== 'scan') stopCam();
+  ({ dash: loadStats, orders: loadOrders, tickets: loadTickets, draw: loadDraws, settings: loadSettings, issue: issueHint }[t] || (() => {}))();
+}
+
+async function boot() {
+  if (!configured) { showLogin('js/config.js тохиргоо хийгдээгүй байна.'); return; }
+  if (!auth.get()) { showLogin(); return; }
+  try { me = await api('admin_me'); }
+  catch (e) { auth.logout(); showLogin(e.message); return; }
+  $('login').classList.add('hidden'); $('app').classList.remove('hidden'); $('topbar').classList.remove('hidden');
+  $('who').textContent = me.email; $('role').textContent = me.role === 'admin' ? 'Админ' : 'Ажилтан';
+  buildTabs();
+  if (me.role === 'admin') {
+    try {                                                   // сайтын хаягийг автоматаар бүртгэнэ (имэйлийн холбоосонд)
+      const s = (await api('admin_settings_get')).settings;
+      settings = s;
+      if (!s.site_url) { settings = (await api('admin_settings_save', { settings: { site_url: siteBase() } })).settings; }
+    } catch { /* */ }
+  }
+  setInterval(() => { if (!document.hidden && !$('app').classList.contains('hidden') && document.querySelector('[data-t="dash"].active')) loadStats(); }, 20000);
+}
+
+// ---------------- самбар
+async function loadStats() {
+  try { stats = await api('admin_stats'); } catch (e) { toast(e.message); return; }
+  const s = stats, pct = s.total ? (s.sold / s.total * 100) : 0;
+  $('sys').innerHTML = `
+    <span class="pill ${me.qpay ? 'ok' : 'bad'}">QPay: ${me.qpay ? (me.qpay_mode === 'sandbox' ? 'туршилтын (sandbox)' : 'холбогдсон') : 'тохируулаагүй'}</span>
+    <span class="pill ${me.mail ? 'ok' : 'bad'}">Имэйл: ${me.mail ? (me.mail_via === 'smtp' ? 'Gmail/SMTP' : 'Resend') : 'тохируулаагүй'}</span>
+    <span class="pill mid">Шинэчилсэн ${fmtTime(s.now)}</span>`;
+  const k = (label, val, sub, cls = '', bar) => `<div class="kpi ${cls}"><span>${label}</span><b>${val}</b>${sub ? `<small>${sub}</small>` : ''}${bar != null ? `<div class="bar"><i style="width:${bar}%"></i></div>` : ''}</div>`;
+  $('kpis').innerHTML =
+    k('Борлогдсон', `${s.sold} / ${s.total}`, `Онлайн ${s.sold_online} · Гараар ${s.sold_manual}`, '', pct.toFixed(1)) +
+    k('Орлого', money(s.revenue), `QPay ${money(s.revenue_qpay)}`) +
+    k('Үлдсэн', s.available, s.pending_qty ? `${s.pending_qty} нь төлбөр хүлээж буй` : 'тасалбар') +
+    k('Үүдээр орсон', s.entered, s.sold ? `${(s.entered / s.sold * 100).toFixed(0)}% нь ирсэн` : '', '', s.sold ? (s.entered / s.sold * 100).toFixed(1) : 0) +
+    k('Хоол авсан', s.food, '') + k('Ундаа авсан', s.drink, '') +
+    (s.refund_orders ? k('Буцаалт хэрэгтэй', s.refund_orders, 'Захиалга таб → «Буцаалт» шүүлтүүр', 'warn') : '') +
+    (s.email_errors ? k('Имэйл очоогүй', s.email_errors, 'Захиалга таб дээр ⚠ тэмдэгтэй', 'warn') : '');
+  const days = s.by_day || [], max = Math.max(1, ...days.map(d => d.qty));
+  $('days').innerHTML = days.length ? days.map(d => `<div><b>${d.qty}</b><i style="height:${(d.qty / max * 110).toFixed(0)}px"></i>${d.day.slice(5).replace('-', '.')}</div>`).join('') : '<p class="muted small">Борлуулалт хараахан алга.</p>';
+  const dot = $('dot-orders'); if (dot) { dot.textContent = s.refund_orders + s.email_errors; dot.classList.toggle('hidden', !(s.refund_orders + s.email_errors)); }
+}
+
+// ---------------- захиалга
+async function loadOrders() {
+  $('o-count').textContent = 'Ачаалж байна…';
+  try { orders = (await api('admin_orders')).orders; } catch (e) { $('o-count').textContent = e.message; return; }
+  renderOrders();
+}
+function filteredOrders() {
+  const q = $('o-q').value.trim().toLowerCase(), st = $('o-st').value, src = $('o-src').value;
+  return orders.filter(o => (!st || o.status === st) && (!src || o.source === src) && (!q ||
+    [o.code, o.name, o.phone, o.email, ...(o.parade_tickets || []).map(t => t.number)].join(' ').toLowerCase().includes(q)));
+}
+function renderOrders() {
+  const list = filteredOrders();
+  const paid = list.filter(o => o.status === 'paid');
+  $('o-count').textContent = `${list.length} захиалга · төлөгдсөн ${paid.length} · ${paid.reduce((a, o) => a + o.qty, 0)} тасалбар · ${money(paid.reduce((a, o) => a + (o.paid_amount || 0), 0))}`;
+  $('o-body').innerHTML = list.slice(0, 600).map(o => {
+    const tk = (o.parade_tickets || []).filter(t => t.status === 'valid').map(t => t.number).sort((a, b) => a - b);
+    const acts = [];
+    if (o.status === 'pending' && o.pay_method === 'qpay') acts.push(`<button class="btn btn-light btn-sm" data-a="check" data-id="${o.id}">QPay шалгах</button>`);
+    if (['pending', 'expired'].includes(o.status)) acts.push(`<button class="btn btn-ok btn-sm" data-a="confirm" data-id="${o.id}">Баталгаажуулах</button>`);
+    if (o.status === 'paid') acts.push(`<button class="btn btn-light btn-sm" data-a="resend" data-id="${o.id}">Имэйл дахин</button>`);
+    if (o.status === 'refund') acts.push(`<button class="btn btn-light btn-sm" data-a="refunded" data-id="${o.id}">Буцаасан ✓</button>`);
+    acts.push(`<button class="btn btn-light btn-sm" data-a="edit" data-id="${o.id}">Засах</button>`);
+    if (['pending', 'paid'].includes(o.status)) acts.push(`<button class="btn btn-light btn-sm" style="color:var(--red)" data-a="cancel" data-id="${o.id}">Цуцлах</button>`);
+    return `<tr>
+      <td class="mono">${fmtDT(o.created_at)}${o.paid_at ? `<small>Төлсөн ${fmtTime(o.paid_at)}</small>` : ''}</td>
+      <td class="mono"><b>${esc(o.code)}</b>${o.source === 'manual' ? `<small>Гараар · ${esc((o.created_by || '').split('@')[0])}</small>` : ''}</td>
+      <td><b>${esc(o.name)}</b><small>${esc(o.phone)}</small><small>${esc(o.email || '')}${o.email_error ? ` <span title="${esc(o.email_error)}" style="color:var(--red)">⚠ имэйл очоогүй</span>` : (o.email_sent_at && o.status === 'paid' && o.email ? ' ✓' : '')}</small>${o.note ? `<small style="color:#7a5b12">${esc(o.note)}</small>` : ''}</td>
+      <td>${o.qty}</td>
+      <td class="mono">${money(o.paid_amount ?? o.amount)}</td>
+      <td>${METHOD[o.pay_method] || esc(o.pay_method)}</td>
+      <td><span class="tag ${o.status}">${STATUS[o.status] || o.status}</span>${o.status === 'pending' ? `<small>${fmtTime(o.expires_at)} хүртэл</small>` : ''}</td>
+      <td class="nums">${tk.join(', ') || '—'}</td>
+      <td><div class="acts">${acts.join('')}</div></td></tr>`;
+  }).join('') || '<tr><td colspan="9" class="muted">Захиалга алга.</td></tr>';
+}
+['o-q', 'o-st', 'o-src'].forEach(id => $(id).addEventListener('input', renderOrders));
+$('o-reload').onclick = loadOrders;
+$('o-body').onclick = async e => {
+  const b = e.target.closest('button[data-a]'); if (!b) return;
+  const o = orders.find(x => x.id === b.dataset.id); const a = b.dataset.a;
+  try {
+    if (a === 'check') { b.disabled = true; const r = await api('admin_order_check', { id: o.id }); toast(r.after === 'paid' ? 'Төлөгдсөн байна — тасалбар олгогдлоо.' : (r.qpay?.error ? 'QPay: ' + r.qpay.error : 'Төлбөр ороогүй байна.')); }
+    else if (a === 'confirm') return confirmModal(o);
+    else if (a === 'edit') return editModal(o);
+    else if (a === 'resend') { b.disabled = true; await api('admin_resend', { id: o.id }); toast('Имэйл илгээлээ: ' + o.email); }
+    else if (a === 'refunded') { if (!confirm(`${o.code}: мөнгийг буцаасан гэж тэмдэглэх үү?`)) return; await api('admin_order_refunded', { id: o.id }); toast('Тэмдэглэлээ'); }
+    else if (a === 'cancel') {
+      const reason = prompt(`${o.code} (${o.name}, ${o.qty} ш) захиалгыг цуцлах уу?${o.status === 'paid' ? '\nТасалбарууд нь хүчингүй болно. Мөнгө буцаалтыг тусад нь хийнэ.' : ''}\n\nШалтгаан:`, '');
+      if (reason === null) return;
+      await api('admin_order_cancel', { id: o.id, reason }); toast('Цуцаллаа');
+    }
+    await loadOrders();
+  } catch (ex) { toast(ex.message, 4000); b.disabled = false; }
+};
+
+// ---------------- модаль
+function modal(title, html) { $('mh').textContent = title; $('mb').innerHTML = html; $('modal').classList.add('open'); }
+function closeModal() { $('modal').classList.remove('open'); }
+$('mx').onclick = closeModal; $('modal').onclick = e => { if (e.target === $('modal')) closeModal(); };
+function confirmModal(o) {
+  modal('Төлбөр баталгаажуулах', `<p><b>${esc(o.code)}</b> · ${esc(o.name)} · ${o.qty} ш · <b>${money(o.amount)}</b></p>
+    <p class="small muted">Төлбөр орсныг (дансны хуулга, бэлэн мөнгө) шалгасны дараа баталгаажуулна. Тасалбар олгогдож, имэйлээр очно.</p>
+    <form class="form" id="cf"><div><label>Төлбөрийн хэлбэр</label><select class="input" name="method">${Object.entries(METHOD).map(([k, v]) => `<option value="${k}"${k === o.pay_method ? ' selected' : ''}>${v}</option>`).join('')}</select></div>
+    <div id="cf-err"></div><button class="btn btn-ok btn-block">Баталгаажуулж тасалбар олгох</button></form>`);
+  $('cf').onsubmit = async e => {
+    e.preventDefault();
+    try { await api('admin_order_confirm', { id: o.id, method: e.target.method.value }); closeModal(); toast('Баталгаажлаа'); loadOrders(); }
+    catch (ex) { $('cf-err').innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; }
+  };
+}
+function editModal(o) {
+  modal('Захиалга засах', `<form class="form" id="ef">
+    <div><label>Нэр</label><input class="input" name="name" value="${esc(o.name)}"></div>
+    <div class="row"><div><label>Утас</label><input class="input" name="phone" value="${esc(o.phone)}"></div><div><label>Имэйл</label><input class="input" name="email" value="${esc(o.email || '')}"></div></div>
+    <div><label>Тэмдэглэл</label><input class="input" name="note" value="${esc(o.note || '')}"></div>
+    <div id="ef-err"></div><button class="btn btn-navy btn-block">Хадгалах</button>
+    ${o.status === 'paid' ? '<p class="small muted" style="margin:0">Имэйл буруу байсан бол засаад «Имэйл дахин» дарна.</p>' : ''}</form>`);
+  $('ef').onsubmit = async e => {
+    e.preventDefault(); const f = e.target;
+    try { await api('admin_order_update', { id: o.id, name: f.name.value, phone: f.phone.value, email: f.email.value, note: f.note.value }); closeModal(); toast('Хадгаллаа'); loadOrders(); }
+    catch (ex) { $('ef-err').innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; }
+  };
+}
+
+// ---------------- тасалбар
+async function loadTickets() {
+  $('t-count').textContent = 'Ачаалж байна…';
+  try { tickets = (await api('admin_tickets')).tickets; } catch (e) { $('t-count').textContent = e.message; return; }
+  renderTickets();
+}
+function filteredTickets() {
+  const q = $('t-q').value.trim().toLowerCase(), f = $('t-f').value;
+  return tickets.filter(t => {
+    if (f === 'valid' && t.status !== 'valid') return false;
+    if (f === 'cancelled' && t.status !== 'cancelled') return false;
+    if (f === 'entered' && !(t.status === 'valid' && t.entry_at)) return false;
+    if (f === 'notentered' && !(t.status === 'valid' && !t.entry_at)) return false;
+    const o = t.parade_orders || {};
+    return !q || [t.number, t.holder_name, o.name, o.phone, o.email, o.code].join(' ').toLowerCase().includes(q);
+  });
+}
+const stamp = (at, by) => at ? `<span class="tag yes" title="${esc(by || '')}">✓ ${fmtTime(at)}</span>` : '<span class="tag gray">—</span>';
+function renderTickets() {
+  const list = filteredTickets();
+  $('t-count').textContent = `${list.length} тасалбар`;
+  $('t-body').innerHTML = list.slice(0, 800).map(t => {
+    const o = t.parade_orders || {};
+    const v = t.status === 'valid';
+    return `<tr>
+      <td class="mono"><b style="font-size:15px">${t.number}</b></td>
+      <td><b>${esc(t.holder_name || o.name)}</b><small>${esc(o.phone || '')}</small></td>
+      <td class="mono">${esc(o.code || '')}<small>${METHOD[o.pay_method] || ''}${o.source === 'manual' ? ' · гараар' : ''}</small></td>
+      <td><span class="tag ${t.status}">${v ? 'Хүчинтэй' : 'Цуцалсан'}</span></td>
+      <td>${stamp(t.entry_at, t.entry_by)}</td><td>${stamp(t.food_at, t.food_by)}</td><td>${stamp(t.drink_at, t.drink_by)}</td>
+      <td><div class="acts">
+        <a class="btn btn-light btn-sm" href="${ticketLink(t.token)}" target="_blank" rel="noopener">QR</a>
+        ${v && t.entry_at ? `<button class="btn btn-light btn-sm" data-a="reset" data-m="entry" data-id="${t.id}">Орсныг буцаах</button>` : ''}
+        ${v && t.food_at ? `<button class="btn btn-light btn-sm" data-a="reset" data-m="food" data-id="${t.id}">Хоол буцаах</button>` : ''}
+        ${v && t.drink_at ? `<button class="btn btn-light btn-sm" data-a="reset" data-m="drink" data-id="${t.id}">Ундаа буцаах</button>` : ''}
+        ${v ? `<button class="btn btn-light btn-sm" style="color:var(--red)" data-a="cancel" data-id="${t.id}">Цуцлах</button>` : ''}
+      </div></td></tr>`;
+  }).join('') || '<tr><td colspan="8" class="muted">Тасалбар алга.</td></tr>';
+}
+['t-q', 't-f'].forEach(id => $(id).addEventListener('input', renderTickets));
+$('t-reload').onclick = loadTickets;
+$('t-body').onclick = async e => {
+  const b = e.target.closest('button[data-a]'); if (!b) return;
+  const t = tickets.find(x => x.id === b.dataset.id);
+  try {
+    if (b.dataset.a === 'cancel') { if (!confirm(`№${t.number} тасалбарыг цуцлах уу? QR нь хүчингүй болж, дугаар нь чөлөөлөгдөнө.`)) return; await api('admin_ticket_cancel', { id: t.id }); }
+    else { await api('admin_ticket_reset', { id: t.id, mode: b.dataset.m }); }
+    toast('Хадгаллаа'); loadTickets();
+  } catch (ex) { toast(ex.message); }
+};
+
+// CSV (Excel-д нээгдэх)
+function csv(name, rows) {
+  const s = '﻿' + rows.map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([s], { type: 'text/csv;charset=utf-8' }));
+  a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+$('t-csv').onclick = () => csv('tasalbaruud.csv', [['Дугаар', 'Эзэмшигч', 'Утас', 'Имэйл', 'Захиалга', 'Төлбөр', 'Төлөв', 'Орсон', 'Хоол', 'Ундаа'],
+  ...filteredTickets().map(t => { const o = t.parade_orders || {}; return [t.number, t.holder_name || o.name, o.phone, o.email, o.code, METHOD[o.pay_method] || o.pay_method, t.status === 'valid' ? 'Хүчинтэй' : 'Цуцалсан', fmtDT(t.entry_at), fmtDT(t.food_at), fmtDT(t.drink_at)]; })]);
+$('o-csv').onclick = () => csv('zahialguud.csv', [['Огноо', 'Код', 'Нэр', 'Утас', 'Имэйл', 'Тоо', 'Дүн', 'Төлбөр', 'Төлөв', 'Тасалбарууд', 'Эх сурвалж', 'Тэмдэглэл'],
+  ...filteredOrders().map(o => [fmtDT(o.created_at), o.code, o.name, o.phone, o.email, o.qty, o.paid_amount ?? o.amount, METHOD[o.pay_method] || o.pay_method, STATUS[o.status] || o.status,
+    (o.parade_tickets || []).filter(t => t.status === 'valid').map(t => t.number).sort().join(' '), o.source === 'manual' ? 'Гараар' : 'Онлайн', o.note])]);
+
+// ---------------- уншуулах
+const MODE_LBL = { entry: 'Орох', food: 'Хоол', drink: 'Ундаа' };
+$('seg').onclick = e => { const b = e.target.closest('button'); if (!b) return; mode = b.dataset.mode; document.querySelectorAll('#seg button').forEach(x => x.classList.toggle('active', x === b)); $('result').className = 'result'; $('result').innerHTML = `<div class="muted">${MODE_LBL[mode]} — QR уншуулна уу.</div>`; };
+let stream = null, raf = null, busy = false, lastCode = '', lastAt = 0, detector = null;
+const canvas = document.createElement('canvas'), ctx = canvas.getContext('2d', { willReadFrequently: true });
+async function startCam() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 } }, audio: false });
+  } catch (e) { toast('Камер нээгдсэнгүй: ' + (e.message || e), 5000); return; }
+  const v = document.createElement('video');
+  v.setAttribute('playsinline', ''); v.muted = true; v.srcObject = stream;
+  $('cam').innerHTML = ''; $('cam').append(v); $('cam').insertAdjacentHTML('beforeend', '<div class="frame"></div><button class="btn btn-ghost btn-sm" id="cam-stop" style="position:absolute;bottom:10px;right:10px">Камер унтраах</button>');
+  $('cam-stop').onclick = stopCam;
+  await v.play();
+  if ('BarcodeDetector' in window) { try { detector = new BarcodeDetector({ formats: ['qr_code'] }); } catch { detector = null; } }
+  let last = 0;
+  const loop = async ts => {
+    raf = requestAnimationFrame(loop);
+    if (busy || ts - last < 180 || v.readyState < 2) return;
+    last = ts;
+    let text = null;
+    try {
+      if (detector) { const r = await detector.detect(v); text = r[0]?.rawValue || null; }
+      else {
+        const w = 640, h = Math.round(v.videoHeight / v.videoWidth * w) || 480;
+        canvas.width = w; canvas.height = h; ctx.drawImage(v, 0, 0, w, h);
+        const r = window.jsQR(ctx.getImageData(0, 0, w, h).data, w, h, { inversionAttempts: 'dontInvert' });
+        text = r?.data || null;
+      }
+    } catch { /* */ }
+    if (text) handleCode(text);
+  };
+  raf = requestAnimationFrame(loop);
+}
+function stopCam() {
+  cancelAnimationFrame(raf); raf = null;
+  if (stream) stream.getTracks().forEach(t => t.stop()); stream = null;
+  if ($('cam') && !$('cam-on')) { $('cam').innerHTML = '<div class="off" id="cam-off"><p style="margin:0 0 12px">QR уншуулах камер</p><button class="btn btn-gold" id="cam-on">📷 Камер асаах</button></div>'; $('cam-on').onclick = startCam; }
+}
+$('cam-on').onclick = startCam;
+$('manual').onsubmit = e => { e.preventDefault(); const c = $('m-code').value.trim(); if (c) { lastCode = ''; handleCode(c); $('m-code').value = ''; } };
+
+let audioCtx;
+function beep(ok) {
+  try {
+    audioCtx ??= new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.frequency.value = ok ? 880 : 220; o.type = ok ? 'sine' : 'square'; g.gain.value = .15;
+    o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + (ok ? .15 : .45));
+  } catch { /* */ }
+  try { navigator.vibrate && navigator.vibrate(ok ? 80 : [200, 80, 200]); } catch { /* */ }
+}
+async function handleCode(code) {
+  if (code === lastCode && Date.now() - lastAt < 3500) return;
+  lastCode = code; lastAt = Date.now(); busy = true;
+  const res = $('result');
+  res.className = 'result'; res.innerHTML = '<div class="status-line"><span class="spinner"></span> Шалгаж байна…</div>';
+  try {
+    const r = await api('admin_scan', { code, mode });
+    const t = r.ticket || {};
+    const who = `<div>${esc(r.name || '')}${r.phone ? ' · ' + esc(String(r.phone).slice(-4).padStart(8, '•')) : ''}</div>`;
+    if (r.result === 'ok') { res.className = 'result ok'; res.innerHTML = `<div class="big">✓ ${mode === 'entry' ? 'Орж болно' : MODE_LBL[mode] + ' олгоно'}</div><div class="no">№${t.number}</div>${who}`; beep(true); }
+    else if (r.result === 'already') { res.className = 'result already'; res.innerHTML = `<div class="big">${mode === 'entry' ? 'Аль хэдийн орсон' : MODE_LBL[mode] + ' авсан'}</div><div class="no">№${t.number}</div><div><b>${fmtTime(r.at)}</b>-д уншуулсан</div>${who}`; beep(false); }
+    else if (r.result === 'cancelled') { res.className = 'result bad'; res.innerHTML = `<div class="big">Хүчингүй тасалбар</div><div class="no">№${t.number}</div>${who}`; beep(false); }
+    else if (r.result === 'info') { res.className = 'result info'; res.innerHTML = `<div class="big">Хүчинтэй</div><div class="no">№${t.number}</div>${who}`; }
+    else { res.className = 'result bad'; res.innerHTML = `<div class="big">Олдсонгүй</div><div style="margin-top:8px;word-break:break-all;font-size:13px">${esc(code.slice(0, 80))}</div>`; beep(false); }
+    $('recent').insertAdjacentHTML('afterbegin', `<div><span>${fmtTime(new Date())} · ${MODE_LBL[mode]}</span><b>${t.number ? '№' + t.number : '—'}</b><span class="tag ${r.result === 'ok' ? 'yes' : r.result === 'already' ? 'pending' : 'no'}">${{ ok: 'OK', already: 'Давхар', cancelled: 'Хүчингүй', info: 'Хүчинтэй', not_found: 'Олдсонгүй' }[r.result]}</span></div>`);
+    while ($('recent').children.length > 12) $('recent').lastChild.remove();
+  } catch (ex) { res.className = 'result bad'; res.innerHTML = `<div class="big">Алдаа</div><div>${esc(ex.message)}</div>`; beep(false); }
+  setTimeout(() => { busy = false; }, 1200);
+}
+
+// ---------------- гараар олгох
+function issueHint() {
+  const f = $('issue-form'), price = settings?.price ?? 50000;
+  const q = Math.max(1, Number(f.qty.value) || 1);
+  f.amount.placeholder = f.method.value === 'free' ? '0' : String(q * price);
+  $('i-hint').textContent = f.method.value === 'free' ? 'Үнэгүй олголт' : `Хоосон бол ${money(q * price)} (${q} × ${money(price)})`;
+  if (!settings && me?.role === 'admin') api('admin_settings_get').then(r => { settings = r.settings; issueHint(); }).catch(() => {});
+}
+['qty', 'method'].forEach(n => $('issue-form')[n].addEventListener('input', issueHint));
+$('issue-form').onsubmit = async e => {
+  e.preventDefault(); const f = e.target, btn = f.querySelector('button[type=submit]');
+  $('i-err').innerHTML = ''; btn.disabled = true;
+  try {
+    const r = await api('admin_issue', { name: f.name.value, phone: f.phone.value, email: f.email.value, qty: f.qty.value, method: f.method.value, amount: f.amount.value, note: f.note.value });
+    $('issued').innerHTML = `<div class="alert ok">${esc(r.order.code)} · ${esc(r.order.name)} · ${r.tickets.length} тасалбар · ${money(r.order.paid_amount)}${r.order.email ? ' · имэйл илгээж байна' : ''}</div>
+      <div class="mini-list">${r.tickets.map(t => `<a class="mini" href="${ticketLink(t.token)}" target="_blank" rel="noopener"><div class="l"><small>ТАСАЛБАР</small><b>№${t.number}</b><span>${esc(r.order.name)} · Нээх →</span></div><div class="r">${qrSvg(ticketLink(t.token), { margin: 1 })}</div></a>`).join('')}</div>`;
+    f.reset(); f.qty.value = 1; issueHint(); toast('Тасалбар олголоо');
+  } catch (ex) { $('i-err').innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; }
+  btn.disabled = false;
+};
+
+// ---------------- сугалаа
+const PRESETS = ['25% эр сарваа', 'TRM брэндийн бүтээгдэхүүн', 'Морьтон эмнэлгийн үйлчилгээний эрх'];
+$('presets').innerHTML = PRESETS.map(p => `<button type="button" class="preset">${p}</button>`).join('');
+$('presets').onclick = e => { const b = e.target.closest('.preset'); if (b) { $('d-prize').value = b.textContent; $('s-prize').textContent = b.textContent; } };
+$('d-prize').oninput = e => { $('s-prize').textContent = e.target.value || 'Сугалаа'; };
+$('fs').onclick = () => { const s = $('stage'); document.fullscreenElement ? document.exitFullscreen() : s.requestFullscreen?.(); };
+$('draw-form').onsubmit = async e => {
+  e.preventDefault(); $('d-err').innerHTML = ''; const btn = $('d-btn'); btn.disabled = true;
+  const start = settings?.start_no || 11111, total = settings?.total || 600;
+  const num = $('s-num'), who = $('s-who');
+  who.textContent = ''; $('s-prize').textContent = $('d-prize').value;
+  let spinning = true;
+  (function spin() { if (!spinning) return; num.textContent = start + Math.floor(Math.random() * total); setTimeout(spin, 60); })();
+  try {
+    const [r] = await Promise.all([api('admin_draw', { prize: $('d-prize').value, pool: $('d-pool').value }), new Promise(r => setTimeout(r, 2600))]);
+    spinning = false; num.textContent = r.number; who.textContent = r.holder_name || '';
+    beep(true); loadDraws();
+  } catch (ex) { spinning = false; num.textContent = '— — —'; $('d-err').innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; }
+  btn.disabled = false;
+};
+async function loadDraws() {
+  if (!settings) api('admin_settings_get').then(r => settings = r.settings).catch(() => {});
+  try {
+    const { draws } = await api('admin_draws');
+    $('w-body').innerHTML = draws.map(d => `<tr style="${d.voided ? 'opacity:.45;text-decoration:line-through' : ''}"><td class="mono">${fmtTime(d.created_at)}</td><td>${esc(d.prize)}</td><td class="mono"><b>${d.number}</b></td><td>${esc(d.holder_name || '')}</td><td class="mono">${esc(d.phone || '')}</td>
+      <td>${d.voided ? '<span class="tag gray">Хүчингүй</span>' : `<button class="btn btn-light btn-sm" data-void="${d.id}">Хүчингүй болгох</button>`}</td></tr>`).join('') || '<tr><td colspan="6" class="muted">Сугалаа хараахан татаагүй.</td></tr>';
+  } catch (e) { toast(e.message); }
+}
+$('w-body').onclick = async e => {
+  const b = e.target.closest('[data-void]'); if (!b) return;
+  if (!confirm('Энэ хожлыг хүчингүй болгох уу? (Жишээ нь хожигч ирээгүй бол.) Тэр тасалбар дахин сугалаанд орно.')) return;
+  try { await api('admin_draw_void', { id: Number(b.dataset.void) }); loadDraws(); } catch (ex) { toast(ex.message); }
+};
+
+// ---------------- тохиргоо
+const toLocal = iso => { if (!iso) return ''; const d = new Date(new Date(iso).getTime() + 8 * 3600_000); return d.toISOString().slice(0, 16); };
+const fromLocal = v => v ? v + ':00+08:00' : '';
+async function loadSettings() {
+  try { settings = (await api('admin_settings_get')).settings; } catch (e) { toast(e.message); return; }
+  const f = $('set-form');
+  for (const el of f.elements) {
+    if (!el.name) continue;
+    const v = settings[el.name];
+    if (el.type === 'checkbox') el.checked = !!v;
+    else if (el.type === 'datetime-local') el.value = toLocal(v);
+    else el.value = v ?? '';
+  }
+  loadStaff();
+}
+$('set-form').onsubmit = async e => {
+  e.preventDefault(); const f = e.target, s = {};
+  for (const el of f.elements) {
+    if (!el.name) continue;
+    s[el.name] = el.type === 'checkbox' ? el.checked : el.type === 'datetime-local' ? fromLocal(el.value) : el.value;
+  }
+  if (!s.event_at) { $('s-msg').innerHTML = '<div class="alert error">Парад эхлэх цагийг оруулна уу.</div>'; return; }
+  try { settings = (await api('admin_settings_save', { settings: s })).settings; $('s-msg').innerHTML = '<div class="alert ok">Хадгаллаа ✓</div>'; setTimeout(() => $('s-msg').innerHTML = '', 3000); }
+  catch (ex) { $('s-msg').innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; }
+};
+$('test-qpay').onclick = async () => {
+  $('qpay-msg').textContent = 'Шалгаж байна…';
+  try { const r = await api('admin_test_qpay'); $('qpay-msg').innerHTML = `<span style="color:${r.ok ? 'var(--ok)' : 'var(--red)'}">${esc(r.message)}</span>`; }
+  catch (ex) { $('qpay-msg').innerHTML = `<span style="color:var(--red)">${esc(ex.message)}</span>`; }
+};
+$('test-mail').onclick = async () => {
+  $('mail-msg').textContent = 'Илгээж байна…';
+  try { const r = await api('admin_test_email', { to: $('test-to').value }); $('mail-msg').innerHTML = `<span style="color:var(--ok)">Илгээлээ → ${esc(r.to)}. Ирсэн эсэхийг (Spam-ыг ч) шалгаарай.</span>`; }
+  catch (ex) { $('mail-msg').innerHTML = `<span style="color:var(--red)">${esc(ex.message)}</span>`; }
+};
+async function loadStaff() {
+  try {
+    const { staff } = await api('admin_staff_list');
+    $('staff').innerHTML = staff.map(s => `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)">
+      <span><b>${esc(s.email)}</b> <span class="tag ${s.role === 'admin' ? 'paid' : 'gray'}">${s.role === 'admin' ? 'Админ' : 'Ажилтан'}</span></span>
+      ${s.email === me.email ? '<span class="small muted">та</span>' : `<button class="btn btn-light btn-sm" data-rm="${esc(s.email)}">Хасах</button>`}</div>`).join('');
+  } catch (e) { $('staff').textContent = e.message; }
+}
+$('staff').onclick = async e => {
+  const b = e.target.closest('[data-rm]'); if (!b) return;
+  if (!confirm(b.dataset.rm + ' хэрэглэгчийн эрхийг хасах уу?')) return;
+  try { await api('admin_staff_remove', { email: b.dataset.rm }); loadStaff(); } catch (ex) { toast(ex.message); }
+};
+$('staff-form').onsubmit = async e => {
+  e.preventDefault(); const f = e.target;
+  try {
+    const r = await api('admin_staff_add', { email: f.email.value, password: f.password.value, role: f.role.value });
+    $('staff-msg').innerHTML = `<div class="alert ${r.note ? 'warn' : 'ok'}">${esc(r.note || 'Нэмлээ ✓ — тэр хүн энэ хуудсаар имэйл, нууц үгээрээ нэвтэрнэ.')}</div>`;
+    f.reset(); loadStaff();
+  } catch (ex) { $('staff-msg').innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; }
+};
+
+boot();
+</script>
+</body>
+</html>

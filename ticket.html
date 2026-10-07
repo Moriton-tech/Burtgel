@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Тасалбар — Морьтон Парад-2026</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#041d25">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+</head>
+<body class="ticket-page">
+<main id="root"><div class="et-actions" style="margin-top:60px"><div class="status-line" style="color:#c9d6d6"><span class="spinner"></span> Ачаалж байна…</div></div></main>
+<footer class="site-footer" id="site-footer"></footer>
+
+<script type="module">
+import { api, esc, fmtDay, fmtTime, fmtWeekday, qrSvg, ticketLink, param, startCountdown, renderChrome } from './js/app.js';
+
+const root = document.getElementById('root');
+const token = (param('t') || '').toLowerCase();
+
+function stub(label, at) {
+  return `<div class="et-stub ${at ? 'used' : ''}"><b>${label}</b><small>${at ? '✓ ' + fmtTime(at) : 'Хүчинтэй'}</small></div>`;
+}
+
+async function load() {
+  try {
+    const { ticket: t, event: ev } = await api('ticket', { t: token });
+    renderChrome(ev);
+    document.title = `№${t.number} — ${ev.event_name}`;
+    const valid = t.status === 'valid';
+    const state = !valid ? '<span class="et-state void">Хүчингүй тасалбар</span>'
+      : t.entry_at ? `<span class="et-state used">Орсон · ${fmtTime(t.entry_at)}</span>`
+      : '<span class="et-state valid">Хүчинтэй · Үүдэнд уншуулна</span>';
+    root.innerHTML = `
+      <article class="eticket">
+        <div class="et-top">
+          <div class="et-brand"><span class="mark"></span><div><b>МОРЬТОН</b><small>Адуу үржүүлгийн газар</small></div></div>
+          <div class="et-title"><span>Тасалбар</span><b>Парад 2026</b></div>
+          <div class="et-row">
+            <div class="et-no"><small>ДУГААР</small><b>№${t.number}</b></div>
+            <div class="et-date">${fmtDay(ev.event_at)} · ${fmtTime(ev.event_at)}<small>${fmtWeekday(ev.event_at)} · ${esc(ev.location)}</small></div>
+          </div>
+        </div>
+        <div class="et-mid"><div class="et-perf"></div>
+          <div class="et-qr">${qrSvg(ticketLink(t.token), { margin: 1 })}${valid ? '' : '<div class="et-void"><span>ХҮЧИНГҮЙ</span></div>'}</div>
+          <div class="et-holder">${esc(t.holder_name)}</div>
+          <div class="et-code">Захиалга ${esc(t.order_code)}</div>
+          ${state}
+        </div>
+        <div class="et-stubs">
+          <div class="et-stub"><b>Сугалаа</b><small>№${t.number}</small></div>
+          ${stub('Хоол', t.food_at)}
+          ${stub('Ус, ундаа', t.drink_at)}
+        </div>
+      </article>
+      <div class="et-actions">
+        <div class="et-cd countdown" id="cd"></div>
+        <div class="tip">Дэлгэцийн гэрэлтүүлгээ нэмж, QR кодыг үүдэнд уншуулна уу. Энэ хуудсыг хадгалах эсвэл скриншот авч болно.</div>
+        <button class="btn btn-gold" id="print">Хэвлэх / PDF</button>
+        <a class="btn btn-ghost" href="index.html">Морьтон Парад-2026 нүүр</a>
+      </div>`;
+    document.getElementById('print').onclick = () => print();
+    startCountdown(document.getElementById('cd'), ev.event_at, ev.now, { compact: true });
+  } catch (e) {
+    renderChrome();
+    root.innerHTML = `<div class="et-actions" style="margin-top:40px"><div class="alert error">${esc(e.message)}</div><a class="btn btn-gold" href="index.html">Нүүр хуудас</a></div>`;
+  }
+}
+load();
+</script>
+</body>
+</html>

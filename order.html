@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Төлбөр — Морьтон Парад-2026</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#072a35">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<header class="site-header" id="site-header"></header>
+<main>
+  <div class="container pay-wrap" id="root"><div class="pay-card"><div class="body"><div class="status-line"><span class="spinner"></span> Ачаалж байна…</div></div></div></div>
+</main>
+<footer class="site-footer" id="site-footer"></footer>
+
+<script type="module">
+import { api, esc, money, fmtDT, fmtDay, fmtTime, fmtWeekday, renderChrome, qrSvg, ticketLink, param, ICONS, toast, rememberOrder } from './js/app.js';
+
+const root = document.getElementById('root');
+const code = (param('c') || '').toUpperCase(), key = param('k') || '';
+let data = null, pollTimer = null, tickTimer = null, rendered = '';
+renderChrome();
+if (code && key) rememberOrder(code, key);
+
+const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+const p2 = n => String(n).padStart(2, '0');
+
+function head(sub, title) {
+  return `<div class="head"><small>${esc(sub)}</small><h1>${title}</h1></div>`;
+}
+function meta(o) {
+  return `<div class="order-meta">
+    <span>Захиалга</span><b class="mono">${esc(o.code)}</b>
+    <span>Нэр</span><b>${esc(o.name)}</b>
+    <span>Имэйл</span><b>${esc(o.email || '—')}</b>
+    <span>Тасалбар</span><b>${o.qty} ширхэг · ${money(o.amount)}</b></div>`;
+}
+
+function render() {
+  const o = data.order, ev = data.event;
+  const sig = o.status + '|' + o.tickets.length;
+  if (sig === rendered) return;            // зөвхөн төлөв өөрчлөгдөхөд дахин зурна
+  rendered = sig;
+  document.title = `${o.code} — ${ev.event_name}`;
+  clearInterval(tickTimer);
+
+  if (o.status === 'paid') {
+    stopPoll();
+    root.innerHTML = `<div class="pay-card">${head(ev.event_name, 'Таны тасалбар')}
+      <div class="body">
+        <div class="success-head"><div class="ok-ic">${ICONS.okBig}</div>
+          <h2>Төлбөр амжилттай!</h2>
+          <p class="muted" style="margin:0">${o.email ? `Тасалбар <b>${esc(o.email)}</b> хаяг руу илгээгдлээ.` : 'Тасалбараа доороос нээж хадгална уу.'} Үүдэнд QR кодоо уншуулж орно.</p></div>
+        <div class="mini-list">${o.tickets.map(t => `
+          <a class="mini" href="${ticketLink(t.token)}">
+            <div class="l"><small>ТАСАЛБАР</small><b>№${t.number}</b><span>${esc(o.name)} · Нээх →</span></div>
+            <div class="r">${qrSvg(ticketLink(t.token), { margin: 1 })}</div></a>`).join('')}
+        </div>
+        <div class="alert info" style="margin-top:14px;font-size:13px">Тасалбар бүрийг нээгээд утсандаа хадгалаарай (скриншот авч болно). Энэ хуудасны холбоосоор дахин орж болно.</div>
+        ${meta(o)}
+        <div class="small muted" style="margin-top:12px">${fmtDay(ev.event_at)}, ${fmtWeekday(ev.event_at)} ${fmtTime(ev.event_at)} · ${esc(ev.location)} · ${esc(ev.phone)}</div>
+      </div></div>`;
+    return;
+  }
+
+  if (o.status === 'pending' && o.pay_method === 'qpay' && o.qpay) {
+    const q = o.qpay;
+    const banks = (q.urls || []).filter(u => u.link);
+    const qrImg = q.qr_image ? `<img src="data:image/png;base64,${q.qr_image}" alt="QPay QR">` : (q.qr_text ? `<div style="width:240px;margin:0 auto">${qrSvg(q.qr_text, { margin: 2 })}</div>` : '');
+    const banksHtml = banks.length ? `<div class="banks">${banks.map(b => `<a href="${esc(b.link)}" rel="noopener">${b.logo ? `<img src="${esc(b.logo)}" alt="" loading="lazy">` : ''}<span>${esc(b.description || b.name)}</span></a>`).join('')}</div>` : '';
+    root.innerHTML = `<div class="pay-card">${head(ev.event_name, 'QPay-р төлөх')}
+      <div class="body">
+        <div class="timer"><span>Төлбөрөө дуусгах хугацаа</span><b id="left">--:--</b></div>
+        <div class="amount-big" style="margin-top:16px">${money(o.amount)}</div>
+        <p class="muted small" style="text-align:center;margin:0">${o.qty} тасалбар · ${esc(o.code)}</p>
+        ${isMobile && banks.length ? `<h4 style="margin:18px 0 0">Банкны аппаар төлөх</h4>${banksHtml}<h4 style="margin:18px 0 0;text-align:center">эсвэл QR уншуулах</h4>` : ''}
+        <div class="qr-box">${qrImg}</div>
+        <p class="small muted" style="text-align:center;margin:0">Банкны аппаараа QR кодыг уншуулж төлнө үү.</p>
+        ${!isMobile && banks.length ? `<details style="margin-top:12px"><summary class="small" style="cursor:pointer;font-weight:600">Утасны банкны аппаар төлөх холбоосууд</summary>${banksHtml}</details>` : ''}
+        <div class="status-line"><span class="spinner"></span> Төлбөр хүлээж байна — төлөгдмөгц автоматаар шилжинэ.</div>
+        <button class="btn btn-light btn-block" id="check" style="margin-top:12px">Төлбөр шалгах</button>
+        ${meta(o)}
+      </div></div>`;
+    document.getElementById('check').onclick = async e => { e.target.disabled = true; await load(true); e.target.disabled = false; };
+    startTick(o.expires_at);
+    return;
+  }
+
+  if (o.status === 'pending' && o.pay_method === 'transfer') {
+    root.innerHTML = `<div class="pay-card">${head(ev.event_name, 'Дансаар төлөх')}
+      <div class="body">
+        <div class="timer"><span>Төлбөрөө хийх хугацаа</span><b id="left">--:--</b></div>
+        <div class="amount-big" style="margin-top:16px">${money(o.amount)}</div>
+        <p class="muted small" style="text-align:center;margin:0 0 14px">${o.qty} тасалбар</p>
+        <div class="bank-box">${esc(o.bank_info || '')}</div>
+        <div class="alert warn" style="margin-top:12px">Гүйлгээний утга дээр <b class="mono" style="font-size:16px">${esc(o.code)}</b> кодыг заавал бичнэ үү.</div>
+        <div class="status-line"><span class="spinner"></span> Төлбөр баталгаажмагц тасалбар энд гарч, имэйлээр ирнэ.</div>
+        ${meta(o)}
+      </div></div>`;
+    startTick(o.expires_at);
+    return;
+  }
+
+  stopPoll();
+  const msgs = {
+    expired: ['Хугацаа дууссан', 'Төлбөр хийгдээгүй тул захиалгын хугацаа дууслаа. Хэрэв та төлсөн бол бидэнтэй холбогдоно уу.'],
+    cancelled: ['Захиалга цуцлагдсан', 'Энэ захиалга цуцлагдсан байна.'],
+    refund: ['Буцаан олголт', 'Таны төлбөр орсон боловч тасалбар олгох боломжгүй болсон тул мөнгийг буцаан олгоно. Бид тантай холбогдоно.'],
+  }[o.status] || ['Төлөв: ' + o.status, ''];
+  root.innerHTML = `<div class="pay-card">${head(ev.event_name, msgs[0])}
+    <div class="body"><p>${msgs[1]}</p>
+      <p>Лавлах утас: <a href="tel:${esc(String(ev.phone).replace(/\D/g, ''))}"><b>${esc(ev.phone)}</b></a></p>
+      <a class="btn btn-gold btn-block" href="index.html#buy">Дахин захиалах</a>${meta(o)}</div></div>`;
+}
+
+function startTick(exp) {
+  const end = new Date(exp).getTime();
+  const tick = () => {
+    const el = document.getElementById('left'); if (!el) return;
+    const s = Math.max(0, Math.floor((end - Date.now()) / 1000));
+    const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60);
+    el.textContent = h ? `${h}:${p2(m)}:${p2(s % 60)}` : `${p2(m)}:${p2(s % 60)}`;
+    if (s === 0) { clearInterval(tickTimer); load(); }
+  };
+  tick(); tickTimer = setInterval(tick, 1000);
+}
+
+function stopPoll() { clearTimeout(pollTimer); pollTimer = null; }
+function schedule() {
+  stopPoll();
+  const o = data?.order;
+  if (!o || o.status !== 'pending') return;
+  pollTimer = setTimeout(load, o.pay_method === 'qpay' ? (document.hidden ? 10000 : 4000) : 15000);
+}
+
+async function load(manual) {
+  try {
+    data = await api('status', { code, key });
+    render();
+    if (manual && data.order.status === 'pending') toast('Төлбөр хараахан орж ирээгүй байна.');
+  } catch (e) {
+    if (!data) root.innerHTML = `<div class="pay-card">${head('Морьтон Парад-2026', 'Захиалга олдсонгүй')}<div class="body"><div class="alert error">${esc(e.message)}</div><p><a class="btn btn-gold" href="index.html">Нүүр хуудас</a></p></div></div>`;
+    else if (manual) toast(e.message);
+  }
+  schedule();
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden && data?.order?.status === 'pending') load(); });
+
+if (!code || !key) root.innerHTML = `<div class="pay-card">${head('Морьтон Парад-2026', 'Холбоос буруу байна')}<div class="body"><a class="btn btn-gold" href="index.html">Нүүр хуудас</a></div></div>`;
+else load();
+</script>
+</body>
+</html>

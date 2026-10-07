@@ -1,0 +1,4 @@
+# Supabase CLI ашиглах бол (заавал биш): `supabase functions deploy parade`
+# QPay callback нэвтрэлтгүй ирдэг тул JWT шалгалтыг унтраана.
+[functions.parade]
+verify_jwt = false
