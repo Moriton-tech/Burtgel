@@ -275,6 +275,17 @@ textarea.input { min-height: 80px; resize: vertical; }
 .mini .r { width: 112px; background: #fff; display: grid; place-items: center; padding: 8px; border-left: 2px dashed var(--gold); }
 .mini .r svg { width: 96px; height: 96px; }
 
+/* том QR тасалбар (төлбөрийн дараа) */
+.big-list { display: grid; gap: 16px; margin-top: 16px; }
+.big-tk { background: var(--navy); border-radius: 18px; overflow: hidden; color: #fff; }
+.big-tk .bt-qr { background: #fff; padding: 14px; border-bottom: 3px dashed var(--gold); }
+.big-tk .bt-qr svg { display: block; width: 100%; max-width: 340px; height: auto; margin: 0 auto; }
+.big-tk .bt-info { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; padding: 14px 18px 16px; }
+.big-tk .bt-info small { width: 100%; color: var(--gold-l); font-size: 11px; letter-spacing: 2px; font-weight: 700; }
+.big-tk .bt-info b { font-family: var(--display); font-size: 36px; color: var(--gold-l); letter-spacing: 1px; line-height: 1; }
+.big-tk .bt-info span { flex: 1; font-size: 14px; opacity: .9; }
+.big-tk .bt-info .btn { margin-left: auto; }
+
 /* ---------- цахим тасалбар ---------- */
 body.ticket-page { background: radial-gradient(circle at 50% 0%, #0f4a5b 0%, var(--navy-dd) 60%); }
 .eticket { width: min(420px, 100% - 24px); margin: 22px auto 16px; filter: drop-shadow(0 24px 40px rgba(0,0,0,.45)); }
@@ -296,7 +307,7 @@ body.ticket-page { background: radial-gradient(circle at 50% 0%, #0f4a5b 0%, var
 .et-mid::before, .et-mid::after { content: ""; position: absolute; top: -11px; width: 22px; height: 22px; border-radius: 50%; background: var(--navy-dd); }
 .et-mid::before { left: -11px; } .et-mid::after { right: -11px; }
 .et-perf { position: absolute; top: 0; left: 18px; right: 18px; border-top: 2px dashed #cfc8b6; }
-.et-qr { width: 230px; height: 230px; margin: 4px auto 6px; position: relative; }
+.et-qr { width: min(300px, 100%); aspect-ratio: 1; height: auto; margin: 4px auto 6px; position: relative; }
 .et-qr svg { width: 100%; height: 100%; }
 .et-holder { font-weight: 800; font-size: 17px; color: var(--navy); }
 .et-code { font-size: 12px; color: var(--muted); }

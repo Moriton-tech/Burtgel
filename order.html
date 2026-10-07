@@ -59,10 +59,12 @@ function render() {
         <div class="success-head"><div class="ok-ic">${ICONS.okBig}</div>
           <h2>Төлбөр амжилттай!</h2>
           <p class="muted" style="margin:0">${o.email ? `Тасалбар <b>${esc(o.email)}</b> хаяг руу илгээгдлээ.` : 'Тасалбараа доороос нээж хадгална уу.'} Үүдэнд QR кодоо уншуулж орно.</p></div>
-        <div class="mini-list">${o.tickets.map(t => `
-          <a class="mini" href="${ticketLink(t.token)}">
-            <div class="l"><small>ТАСАЛБАР</small><b>№${t.number}</b><span>${esc(o.name)} · Нээх →</span></div>
-            <div class="r">${qrSvg(ticketLink(t.token), { margin: 1 })}</div></a>`).join('')}
+        <div class="big-list">${o.tickets.map(t => `
+          <div class="big-tk">
+            <div class="bt-qr">${qrSvg(ticketLink(t.token), { margin: 2 })}</div>
+            <div class="bt-info"><small>ТАСАЛБАР</small><b>№${t.number}</b><span>${esc(o.name)}</span>
+              <a class="btn btn-gold btn-sm" href="${ticketLink(t.token)}">Тасалбар нээх →</a></div>
+          </div>`).join('')}
         </div>
         <div class="alert ${o.email ? 'info' : 'warn'}" style="margin-top:14px;font-size:13px">${o.email ? '' : '<b>Имэйл бичээгүй тул тасалбар имэйлээр очихгүй.</b> '}Тасалбар бүрийг нээгээд утсандаа хадгалаарай (скриншот авч болно). Энэ төхөөрөмж дээр нүүр хуудасны «Миний тасалбар» хэсгээс дахин орж болно.</div>
         ${meta(o)}
