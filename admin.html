@@ -390,7 +390,16 @@ async function loadStats() {
     k('Үүдээр орсон', s.entered, s.sold ? `${(s.entered / s.sold * 100).toFixed(0)}% нь ирсэн` : '', '', s.sold ? (s.entered / s.sold * 100).toFixed(1) : 0) +
     k('Хоол авсан', s.food, '') + k('Ундаа авсан', s.drink, '') +
     (s.refund_orders ? k('Буцаалт хэрэгтэй', s.refund_orders, 'Захиалга таб → «Буцаалт» шүүлтүүр', 'warn') : '') +
-    (s.email_errors ? k('Имэйл очоогүй', s.email_errors, 'Захиалга таб дээр ⚠ тэмдэгтэй', 'warn') : '');
+    (s.email_errors ? k('Имэйл очоогүй', s.email_errors, '<button class="btn btn-danger btn-sm" id="resend-failed" style="margin-top:6px">Бүгдэд дахин илгээх</button>', 'warn') : '');
+  const rf = $('resend-failed');
+  if (rf) rf.onclick = async () => {
+    rf.disabled = true; rf.textContent = 'Илгээж байна…';
+    try {
+      const r = await api('admin_resend_failed');
+      toast(`Илгээсэн: ${r.sent} · Амжилтгүй: ${r.failed}` + (r.failed && r.results.find(x => !x.ok) ? ' — ' + r.results.find(x => !x.ok).error : ''), 7000);
+    } catch (ex) { toast(ex.message, 6000); }
+    loadStats();
+  };
   const days = s.by_day || [], max = Math.max(1, ...days.map(d => d.qty));
   $('days').innerHTML = days.length ? days.map(d => `<div><b>${d.qty}</b><i style="height:${(d.qty / max * 110).toFixed(0)}px"></i>${d.day.slice(5).replace('-', '.')}</div>`).join('') : '<p class="muted small">Борлуулалт хараахан алга.</p>';
   const dot = $('dot-orders'); if (dot) { dot.textContent = s.refund_orders + s.email_errors; dot.classList.toggle('hidden', !(s.refund_orders + s.email_errors)); }

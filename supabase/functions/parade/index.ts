@@ -599,6 +599,22 @@ async function admin(action: string, b: any, req: Request) {
       return { ok: true };
     }
 
+    case 'admin_resend_failed': {                   // имэйл очоогүй бүх төлөгдсөн захиалгад дахин илгээх (нэг удаад 15)
+      if (!MAIL_ON) throw new HttpError(400, 'Имэйл тохиргоо (SMTP_USER/SMTP_PASS) хийгдээгүй байна.');
+      const rows = await q(db.from('parade_orders').select('id,code,email,email_error,email_sent_at')
+        .eq('status', 'paid').not('email', 'is', null)
+        .or('email_error.not.is.null,email_sent_at.is.null').order('created_at').limit(15));
+      const results: { code: string; ok: boolean; error: string | null }[] = [];
+      for (const o of rows || []) {
+        const r = await sendOrderEmails(o.id, { force: true });
+        results.push({ code: o.code, ok: !r.error, error: r.error });
+      }
+      const left = await q(db.from('parade_orders').select('id', { count: 'exact', head: true })
+        .eq('status', 'paid').not('email', 'is', null).or('email_error.not.is.null,email_sent_at.is.null'));
+      log(me.email, 'resend_failed', { sent: results.filter(r => r.ok).length, failed: results.filter(r => !r.ok).length });
+      return { results, sent: results.filter(r => r.ok).length, failed: results.filter(r => !r.ok).length };
+    }
+
     case 'admin_tickets': {
       const rows = await q(db.from('parade_tickets')
         .select('id,number,token,status,holder_name,entry_at,entry_by,food_at,food_by,drink_at,drink_by,cancelled_at,created_at,parade_orders(id,code,name,phone,phone2,aimag,sum,title,email,pay_method,source)')
