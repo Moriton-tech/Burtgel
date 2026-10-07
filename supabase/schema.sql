@@ -59,6 +59,11 @@ create table if not exists public.parade_orders (
   updated_at        timestamptz not null default now()
 );
 alter table public.parade_orders add column if not exists client_ip text;
+-- Бүртгэлийн нэмэлт мэдээлэл
+alter table public.parade_orders add column if not exists phone2 text;
+alter table public.parade_orders add column if not exists aimag  text;
+alter table public.parade_orders add column if not exists sum    text;
+alter table public.parade_orders add column if not exists title  text;
 create index if not exists parade_orders_status_idx on public.parade_orders (status, expires_at);
 create index if not exists parade_orders_phone_idx  on public.parade_orders (phone);
 create index if not exists parade_orders_email_idx  on public.parade_orders (lower(email));
@@ -428,3 +433,6 @@ begin
     execute format('grant execute on function public.%s to service_role', f);
   end loop;
 end $$;
+
+-- API-ийн схемийн кэшийг шинэчилнэ (шинэ баганууд шууд ажиллана)
+notify pgrst, 'reload schema';

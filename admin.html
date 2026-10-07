@@ -139,7 +139,7 @@
     <!-- ЗАХИАЛГА -->
     <div class="tab" data-tab="orders">
       <div class="filters">
-        <input class="input grow" id="o-q" placeholder="Хайх: код, нэр, утас, имэйл, дугаар">
+        <input class="input grow" id="o-q" placeholder="Хайх: код, нэр, утас, аймаг, цол, дугаар">
         <select class="input" id="o-st">
           <option value="">Бүх төлөв</option><option value="paid">Төлөгдсөн</option><option value="pending">Хүлээгдэж буй</option>
           <option value="expired">Хугацаа дууссан</option><option value="cancelled">Цуцалсан</option><option value="refund">Буцаалт хэрэгтэй</option>
@@ -194,6 +194,14 @@
             <div><label>Овог нэр <span class="req">*</span></label><input class="input" name="name" required maxlength="80"></div>
             <div class="row">
               <div><label>Утас</label><input class="input" name="phone" type="tel" inputmode="tel"></div>
+              <div><label>Нэмэлт утас</label><input class="input" name="phone2" type="tel" inputmode="tel"></div>
+            </div>
+            <div class="row">
+              <div><label>Аймаг / хот</label><select class="input" name="aimag" id="i-aimag"></select></div>
+              <div><label>Сум / дүүрэг</label><input class="input" name="sum" maxlength="60"></div>
+            </div>
+            <div class="row">
+              <div><label>Цол</label><select class="input" name="title" id="i-title"></select></div>
               <div><label>Имэйл</label><input class="input" name="email" type="email"></div>
             </div>
             <div class="row">
@@ -300,6 +308,9 @@
 <script src="js/vendor/jsQR.js"></script>
 <script type="module">
 import { api as rawApi, auth, esc, money, fmtDT, fmtTime, toast, qrSvg, ticketLink, siteBase, configured } from './js/app.js';
+const AIMAGS = ['Улаанбаатар', 'Архангай', 'Баян-Өлгий', 'Баянхонгор', 'Булган', 'Говь-Алтай', 'Говьсүмбэр', 'Дархан-Уул', 'Дорноговь', 'Дорнод', 'Дундговь', 'Завхан', 'Орхон', 'Өвөрхангай', 'Өмнөговь', 'Сүхбаатар', 'Сэлэнгэ', 'Төв', 'Увс', 'Ховд', 'Хөвсгөл', 'Хэнтий', 'Гадаад'];
+const TITLES = ['Сонирхогч', 'Залуу уяач', 'СУА', 'ААУ', 'НАУ', 'МУАУ', 'МУМУ', 'МУТМУ'];
+const opts = (list, sel) => '<option value="">—</option>' + list.map(a => `<option${a === sel ? ' selected' : ''}>${a}</option>`).join('');
 
 const $ = id => document.getElementById(id);
 let me = null, stats = null, orders = [], tickets = [], settings = null, mode = 'entry';
@@ -394,7 +405,7 @@ async function loadOrders() {
 function filteredOrders() {
   const q = $('o-q').value.trim().toLowerCase(), st = $('o-st').value, src = $('o-src').value;
   return orders.filter(o => (!st || o.status === st) && (!src || o.source === src) && (!q ||
-    [o.code, o.name, o.phone, o.email, ...(o.parade_tickets || []).map(t => t.number)].join(' ').toLowerCase().includes(q)));
+    [o.code, o.name, o.phone, o.phone2, o.email, o.aimag, o.sum, o.title, ...(o.parade_tickets || []).map(t => t.number)].join(' ').toLowerCase().includes(q)));
 }
 function renderOrders() {
   const list = filteredOrders();
@@ -412,7 +423,7 @@ function renderOrders() {
     return `<tr>
       <td class="mono">${fmtDT(o.created_at)}${o.paid_at ? `<small>Төлсөн ${fmtTime(o.paid_at)}</small>` : ''}</td>
       <td class="mono"><b>${esc(o.code)}</b>${o.source === 'manual' ? `<small>Гараар · ${esc((o.created_by || '').split('@')[0])}</small>` : ''}</td>
-      <td><b>${esc(o.name)}</b><small>${esc(o.phone)}</small><small>${esc(o.email || '')}${o.email_error ? ` <span title="${esc(o.email_error)}" style="color:var(--red)">⚠ имэйл очоогүй</span>` : (o.email_sent_at && o.status === 'paid' && o.email ? ' ✓' : '')}</small>${o.note ? `<small style="color:#7a5b12">${esc(o.note)}</small>` : ''}</td>
+      <td><b>${esc(o.name)}</b>${o.title ? ` <span class="tag gray">${esc(o.title)}</span>` : ''}<small>${esc([o.phone, o.phone2].filter(Boolean).join(', '))}</small>${o.aimag ? `<small>${esc([o.aimag, o.sum].filter(Boolean).join(', '))}</small>` : ''}<small>${esc(o.email || '')}${o.email_error ? ` <span title="${esc(o.email_error)}" style="color:var(--red)">⚠ имэйл очоогүй</span>` : (o.email_sent_at && o.status === 'paid' && o.email ? ' ✓' : '')}</small>${o.note ? `<small style="color:#7a5b12">${esc(o.note)}</small>` : ''}</td>
       <td>${o.qty}</td>
       <td class="mono">${money(o.paid_amount ?? o.amount)}</td>
       <td>${METHOD[o.pay_method] || esc(o.pay_method)}</td>
@@ -459,13 +470,15 @@ function confirmModal(o) {
 function editModal(o) {
   modal('Захиалга засах', `<form class="form" id="ef">
     <div><label>Нэр</label><input class="input" name="name" value="${esc(o.name)}"></div>
-    <div class="row"><div><label>Утас</label><input class="input" name="phone" value="${esc(o.phone)}"></div><div><label>Имэйл</label><input class="input" name="email" value="${esc(o.email || '')}"></div></div>
+    <div class="row"><div><label>Утас</label><input class="input" name="phone" value="${esc(o.phone)}"></div><div><label>Нэмэлт утас</label><input class="input" name="phone2" value="${esc(o.phone2 || '')}"></div></div>
+    <div class="row"><div><label>Аймаг / хот</label><select class="input" name="aimag">${opts(AIMAGS, o.aimag)}</select></div><div><label>Сум / дүүрэг</label><input class="input" name="sum" value="${esc(o.sum || '')}"></div></div>
+    <div class="row"><div><label>Цол</label><select class="input" name="title">${opts(TITLES, o.title)}</select></div><div><label>Имэйл</label><input class="input" name="email" value="${esc(o.email || '')}"></div></div>
     <div><label>Тэмдэглэл</label><input class="input" name="note" value="${esc(o.note || '')}"></div>
     <div id="ef-err"></div><button class="btn btn-navy btn-block">Хадгалах</button>
     ${o.status === 'paid' ? '<p class="small muted" style="margin:0">Имэйл буруу байсан бол засаад «Имэйл дахин» дарна.</p>' : ''}</form>`);
   $('ef').onsubmit = async e => {
     e.preventDefault(); const f = e.target;
-    try { await api('admin_order_update', { id: o.id, name: f.name.value, phone: f.phone.value, email: f.email.value, note: f.note.value }); closeModal(); toast('Хадгаллаа'); loadOrders(); }
+    try { await api('admin_order_update', { id: o.id, name: f.name.value, phone: f.phone.value, phone2: f.phone2.value, aimag: f.aimag.value, sum: f.sum.value, title: f.title.value, email: f.email.value, note: f.note.value }); closeModal(); toast('Хадгаллаа'); loadOrders(); }
     catch (ex) { $('ef-err').innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; }
   };
 }
@@ -484,7 +497,7 @@ function filteredTickets() {
     if (f === 'entered' && !(t.status === 'valid' && t.entry_at)) return false;
     if (f === 'notentered' && !(t.status === 'valid' && !t.entry_at)) return false;
     const o = t.parade_orders || {};
-    return !q || [t.number, t.holder_name, o.name, o.phone, o.email, o.code].join(' ').toLowerCase().includes(q);
+    return !q || [t.number, t.holder_name, o.name, o.phone, o.phone2, o.email, o.code, o.aimag, o.sum, o.title].join(' ').toLowerCase().includes(q);
   });
 }
 const stamp = (at, by) => at ? `<span class="tag yes" title="${esc(by || '')}">✓ ${fmtTime(at)}</span>` : '<span class="tag gray">—</span>';
@@ -496,7 +509,7 @@ function renderTickets() {
     const v = t.status === 'valid';
     return `<tr>
       <td class="mono"><b style="font-size:15px">${t.number}</b></td>
-      <td><b>${esc(t.holder_name || o.name)}</b><small>${esc(o.phone || '')}</small></td>
+      <td><b>${esc(t.holder_name || o.name)}</b>${o.title ? ` <span class="tag gray">${esc(o.title)}</span>` : ''}<small>${esc(o.phone || '')}${o.aimag ? ' · ' + esc([o.aimag, o.sum].filter(Boolean).join(', ')) : ''}</small></td>
       <td class="mono">${esc(o.code || '')}<small>${METHOD[o.pay_method] || ''}${o.source === 'manual' ? ' · гараар' : ''}</small></td>
       <td><span class="tag ${t.status}">${v ? 'Хүчинтэй' : 'Цуцалсан'}</span></td>
       <td>${stamp(t.entry_at, t.entry_by)}</td><td>${stamp(t.food_at, t.food_by)}</td><td>${stamp(t.drink_at, t.drink_by)}</td>
@@ -528,10 +541,10 @@ function csv(name, rows) {
   a.href = URL.createObjectURL(new Blob([s], { type: 'text/csv;charset=utf-8' }));
   a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
-$('t-csv').onclick = () => csv('tasalbaruud.csv', [['Дугаар', 'Эзэмшигч', 'Утас', 'Имэйл', 'Захиалга', 'Төлбөр', 'Төлөв', 'Орсон', 'Хоол', 'Ундаа'],
-  ...filteredTickets().map(t => { const o = t.parade_orders || {}; return [t.number, t.holder_name || o.name, o.phone, o.email, o.code, METHOD[o.pay_method] || o.pay_method, t.status === 'valid' ? 'Хүчинтэй' : 'Цуцалсан', fmtDT(t.entry_at), fmtDT(t.food_at), fmtDT(t.drink_at)]; })]);
-$('o-csv').onclick = () => csv('zahialguud.csv', [['Огноо', 'Код', 'Нэр', 'Утас', 'Имэйл', 'Тоо', 'Дүн', 'Төлбөр', 'Төлөв', 'Тасалбарууд', 'Эх сурвалж', 'Тэмдэглэл'],
-  ...filteredOrders().map(o => [fmtDT(o.created_at), o.code, o.name, o.phone, o.email, o.qty, o.paid_amount ?? o.amount, METHOD[o.pay_method] || o.pay_method, STATUS[o.status] || o.status,
+$('t-csv').onclick = () => csv('tasalbaruud.csv', [['Дугаар', 'Эзэмшигч', 'Цол', 'Аймаг', 'Сум', 'Утас', 'Нэмэлт утас', 'Имэйл', 'Захиалга', 'Төлбөр', 'Төлөв', 'Орсон', 'Хоол', 'Ундаа'],
+  ...filteredTickets().map(t => { const o = t.parade_orders || {}; return [t.number, t.holder_name || o.name, o.title, o.aimag, o.sum, o.phone, o.phone2, o.email, o.code, METHOD[o.pay_method] || o.pay_method, t.status === 'valid' ? 'Хүчинтэй' : 'Цуцалсан', fmtDT(t.entry_at), fmtDT(t.food_at), fmtDT(t.drink_at)]; })]);
+$('o-csv').onclick = () => csv('zahialguud.csv', [['Огноо', 'Код', 'Нэр', 'Цол', 'Аймаг', 'Сум', 'Утас', 'Нэмэлт утас', 'Имэйл', 'Тоо', 'Дүн', 'Төлбөр', 'Төлөв', 'Тасалбарууд', 'Эх сурвалж', 'Тэмдэглэл'],
+  ...filteredOrders().map(o => [fmtDT(o.created_at), o.code, o.name, o.title, o.aimag, o.sum, o.phone, o.phone2, o.email, o.qty, o.paid_amount ?? o.amount, METHOD[o.pay_method] || o.pay_method, STATUS[o.status] || o.status,
     (o.parade_tickets || []).filter(t => t.status === 'valid').map(t => t.number).sort().join(' '), o.source === 'manual' ? 'Гараар' : 'Онлайн', o.note])]);
 
 // ---------------- уншуулах
@@ -614,12 +627,13 @@ function issueHint() {
   $('i-hint').textContent = f.method.value === 'free' ? 'Үнэгүй олголт' : `Хоосон бол ${money(q * price)} (${q} × ${money(price)})`;
   if (!settings && me?.role === 'admin') api('admin_settings_get').then(r => { settings = r.settings; issueHint(); }).catch(() => {});
 }
+$('i-aimag').innerHTML = opts(AIMAGS); $('i-title').innerHTML = opts(TITLES);
 ['qty', 'method'].forEach(n => $('issue-form')[n].addEventListener('input', issueHint));
 $('issue-form').onsubmit = async e => {
   e.preventDefault(); const f = e.target, btn = f.querySelector('button[type=submit]');
   $('i-err').innerHTML = ''; btn.disabled = true;
   try {
-    const r = await api('admin_issue', { name: f.name.value, phone: f.phone.value, email: f.email.value, qty: f.qty.value, method: f.method.value, amount: f.amount.value, note: f.note.value });
+    const r = await api('admin_issue', { name: f.name.value, phone: f.phone.value, phone2: f.phone2.value, aimag: f.aimag.value, sum: f.sum.value, title: f.title.value, email: f.email.value, qty: f.qty.value, method: f.method.value, amount: f.amount.value, note: f.note.value });
     $('issued').innerHTML = `<div class="alert ok">${esc(r.order.code)} · ${esc(r.order.name)} · ${r.tickets.length} тасалбар · ${money(r.order.paid_amount)}${r.order.email ? ' · имэйл илгээж байна' : ''}</div>
       <div class="mini-list">${r.tickets.map(t => `<a class="mini" href="${ticketLink(t.token)}" target="_blank" rel="noopener"><div class="l"><small>ТАСАЛБАР</small><b>№${t.number}</b><span>${esc(r.order.name)} · Нээх →</span></div><div class="r">${qrSvg(ticketLink(t.token), { margin: 1 })}</div></a>`).join('')}</div>`;
     f.reset(); f.qty.value = 1; issueHint(); toast('Тасалбар олголоо');

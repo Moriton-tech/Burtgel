@@ -38,6 +38,8 @@ function meta(o) {
   return `<div class="order-meta">
     <span>Захиалга</span><b class="mono">${esc(o.code)}</b>
     <span>Нэр</span><b>${esc(o.name)}</b>
+    <span>Аймаг, сум</span><b>${esc([o.aimag, o.sum].filter(Boolean).join(', ') || '—')}</b>
+    <span>Цол</span><b>${esc(o.title || '—')}</b>
     <span>Имэйл</span><b>${esc(o.email || '—')}</b>
     <span>Тасалбар</span><b>${o.qty} ширхэг · ${money(o.amount)}</b></div>`;
 }
@@ -62,7 +64,7 @@ function render() {
             <div class="l"><small>ТАСАЛБАР</small><b>№${t.number}</b><span>${esc(o.name)} · Нээх →</span></div>
             <div class="r">${qrSvg(ticketLink(t.token), { margin: 1 })}</div></a>`).join('')}
         </div>
-        <div class="alert info" style="margin-top:14px;font-size:13px">Тасалбар бүрийг нээгээд утсандаа хадгалаарай (скриншот авч болно). Энэ хуудасны холбоосоор дахин орж болно.</div>
+        <div class="alert ${o.email ? 'info' : 'warn'}" style="margin-top:14px;font-size:13px">${o.email ? '' : '<b>Имэйл бичээгүй тул тасалбар имэйлээр очихгүй.</b> '}Тасалбар бүрийг нээгээд утсандаа хадгалаарай (скриншот авч болно). Энэ төхөөрөмж дээр нүүр хуудасны «Миний тасалбар» хэсгээс дахин орж болно.</div>
         ${meta(o)}
         <div class="small muted" style="margin-top:12px">${fmtDay(ev.event_at)}, ${fmtWeekday(ev.event_at)} ${fmtTime(ev.event_at)} · ${esc(ev.location)} · ${esc(ev.phone)}</div>
       </div></div>`;

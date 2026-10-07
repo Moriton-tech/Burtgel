@@ -55,6 +55,10 @@ class HttpError extends Error {
 const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { ...CORS, 'Content-Type': 'application/json; charset=utf-8' } });
 
+export const AIMAGS = ['Улаанбаатар', 'Архангай', 'Баян-Өлгий', 'Баянхонгор', 'Булган', 'Говь-Алтай', 'Говьсүмбэр', 'Дархан-Уул',
+  'Дорноговь', 'Дорнод', 'Дундговь', 'Завхан', 'Орхон', 'Өвөрхангай', 'Өмнөговь', 'Сүхбаатар', 'Сэлэнгэ', 'Төв', 'Увс', 'Ховд', 'Хөвсгөл', 'Хэнтий', 'Гадаад'];
+export const TITLES = ['Сонирхогч', 'Залуу уяач', 'СУА', 'ААУ', 'НАУ', 'МУАУ', 'МУМУ', 'МУТМУ'];
+
 const DB_ERRORS: Record<string, string> = {
   SALES_CLOSED: 'Онлайн борлуулалт түр хаагдсан байна.',
   SALES_ENDED: 'Онлайн борлуулалт дууссан байна.',
@@ -299,7 +303,8 @@ function adminEmail(o: any, tickets: any[], s: any, title?: string) {
   const base = siteBase(s);
   const nums = tickets.map(t => t.number).join(', ');
   const rows = [
-    ['Захиалга', o.code], ['Нэр', o.name], ['Утас', o.phone], ['Имэйл', o.email || '—'],
+    ['Захиалга', o.code], ['Нэр', o.name], ['Утас', [o.phone, o.phone2].filter(Boolean).join(', ')], ['Имэйл', o.email || '—'],
+    ['Аймаг, сум', [o.aimag, o.sum].filter(Boolean).join(', ') || '—'], ['Цол', o.title || '—'],
     ['Тоо', `${o.qty} ширхэг`], ['Дүн', money(o.paid_amount ?? o.amount)], ['Төлбөр', o.pay_method],
     ['Төлөв', o.status], ['Дугаар', nums || '—'], ['Эх сурвалж', o.source === 'manual' ? `Гараар (${o.created_by || ''})` : 'Онлайн'],
   ];
@@ -363,7 +368,7 @@ function background(p: Promise<unknown>) {
 // ---------------------------------------------------------------- нийтийн үйлдлүүд
 function publicOrder(o: any, tickets: any[] = [], info?: any) {
   return {
-    code: o.code, name: o.name, phone: o.phone, email: o.email, qty: o.qty, amount: o.amount,
+    code: o.code, name: o.name, phone: o.phone, email: o.email, aimag: o.aimag, sum: o.sum, title: o.title, qty: o.qty, amount: o.amount,
     status: o.status, pay_method: o.pay_method, expires_at: o.expires_at, paid_at: o.paid_at, created_at: o.created_at,
     email_sent: !!o.email_sent_at && !o.email_error,
     qpay: o.status === 'pending' && o.pay_method === 'qpay' ? {
@@ -384,10 +389,18 @@ async function actCreate(b: any, req: Request) {
   const name = String(b.name || '').trim().replace(/\s+/g, ' ');
   const phone = String(b.phone || '').replace(/[^\d+]/g, '');
   const email = String(b.email || '').trim().toLowerCase();
+  const phone2 = String(b.phone2 || '').replace(/[^\d+]/g, '');
+  const aimag = String(b.aimag || '').trim();
+  const sum = String(b.sum || '').trim().replace(/\s+/g, ' ').slice(0, 60);
+  const title = String(b.title || '').trim();
   const qty = Math.floor(Number(b.qty));
   if (name.length < 2 || name.length > 80) throw new HttpError(400, 'Нэрээ зөв оруулна уу.');
   if (!/^\+?\d{8,15}$/.test(phone)) throw new HttpError(400, 'Утасны дугаараа зөв оруулна уу (8 оронтой).');
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || email.length > 120) throw new HttpError(400, 'Имэйл хаягаа зөв оруулна уу — тасалбар тань тэнд очно.');
+  if (phone2 && !/^\+?\d{8,15}$/.test(phone2)) throw new HttpError(400, 'Нэмэлт утасны дугаараа зөв оруулна уу.');
+  if (email && (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || email.length > 120)) throw new HttpError(400, 'Имэйл хаягаа зөв оруулна уу.');
+  if (!AIMAGS.includes(aimag)) throw new HttpError(400, 'Аймгаа сонгоно уу.');
+  if (sum.length < 2) throw new HttpError(400, 'Сум / дүүргээ бичнэ үү.');
+  if (!TITLES.includes(title)) throw new HttpError(400, 'Цолоо сонгоно уу.');
   if (!Number.isFinite(qty) || qty < 1) throw new HttpError(400, 'Тасалбарын тоог сонгоно уу.');
 
   const s = await getSettings();
@@ -401,6 +414,12 @@ async function actCreate(b: any, req: Request) {
   }
 
   let o = await rpc('parade_create_order', { p_name: name, p_phone: phone, p_email: email, p_qty: qty, p_method: method, p_ip: clientIp(req) });
+  try {
+    o = await q(db.from('parade_orders').update({ phone2: phone2 || null, aimag, sum, title }).eq('id', o.id).select('*').single());
+  } catch (e) {
+    await db.from('parade_orders').update({ status: 'cancelled', note: 'Бүртгэл хадгалагдсангүй' }).eq('id', o.id);
+    throw e;
+  }
   if (method === 'qpay') {
     try {
       const inv = await qpayCreateInvoice(o, s);
@@ -490,7 +509,7 @@ async function staffFrom(req: Request, need: 'admin' | 'staff') {
 const log = (actor: string, action: string, detail: unknown) =>
   db.from('parade_log').insert({ actor, action, detail }).then(() => {}, () => {});
 
-const ORDER_COLS = 'id,code,name,phone,email,qty,unit_price,amount,status,source,pay_method,invoice_id,payment_id,paid_amount,paid_at,expires_at,email_sent_at,email_error,note,created_by,created_at,updated_at';
+const ORDER_COLS = 'id,code,name,phone,phone2,aimag,sum,title,email,qty,unit_price,amount,status,source,pay_method,invoice_id,payment_id,paid_amount,paid_at,expires_at,email_sent_at,email_error,note,created_by,created_at,updated_at';
 
 const SETTING_KEYS = ['event_name', 'event_at', 'sales_until', 'location', 'phone', 'price', 'start_no', 'total', 'max_per_order',
   'hold_minutes', 'transfer_hold_hours', 'sales_open', 'bank_info', 'notify_email', 'site_url'];
@@ -560,6 +579,10 @@ async function admin(action: string, b: any, req: Request) {
       if (b.name) patch.name = String(b.name).trim();
       if (b.phone !== undefined) patch.phone = String(b.phone).replace(/[^\d+]/g, '');
       if (b.email !== undefined) patch.email = String(b.email).trim().toLowerCase() || null;
+      if (b.phone2 !== undefined) patch.phone2 = String(b.phone2).replace(/[^\d+]/g, '') || null;
+      if (b.aimag !== undefined) patch.aimag = String(b.aimag).trim() || null;
+      if (b.sum !== undefined) patch.sum = String(b.sum).trim() || null;
+      if (b.title !== undefined) patch.title = String(b.title).trim() || null;
       if (b.note !== undefined) patch.note = String(b.note);
       await q(db.from('parade_orders').update(patch).eq('id', b.id));
       if (patch.name) await q(db.from('parade_tickets').update({ holder_name: patch.name }).eq('order_id', b.id));
@@ -578,7 +601,7 @@ async function admin(action: string, b: any, req: Request) {
 
     case 'admin_tickets': {
       const rows = await q(db.from('parade_tickets')
-        .select('id,number,token,status,holder_name,entry_at,entry_by,food_at,food_by,drink_at,drink_by,cancelled_at,created_at,parade_orders(id,code,name,phone,email,pay_method,source)')
+        .select('id,number,token,status,holder_name,entry_at,entry_by,food_at,food_by,drink_at,drink_by,cancelled_at,created_at,parade_orders(id,code,name,phone,phone2,aimag,sum,title,email,pay_method,source)')
         .order('number').limit(5000));
       return { tickets: rows };
     }
@@ -611,6 +634,12 @@ async function admin(action: string, b: any, req: Request) {
         p_email: String(b.email || '').trim().toLowerCase(), p_qty: qty, p_method: method,
         p_amount: amount, p_note: b.note ? String(b.note) : null, p_actor: me.email,
       });
+      const extra: any = {};
+      if (b.phone2) extra.phone2 = String(b.phone2).replace(/[^\d+]/g, '');
+      if (b.aimag) extra.aimag = String(b.aimag).trim();
+      if (b.sum) extra.sum = String(b.sum).trim();
+      if (b.title) extra.title = String(b.title).trim();
+      if (r.ok && Object.keys(extra).length) await db.from('parade_orders').update(extra).eq('id', r.order.id);
       if (r.ok) background(sendOrderEmails(r.order.id));
       log(me.email, 'issue', { code: r.order?.code, qty, method });
       return r;

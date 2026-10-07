@@ -213,6 +213,8 @@ label .req { color: var(--red); }
 .input { width: 100%; border: 1.5px solid #d6d1c4; border-radius: 11px; padding: 11px 13px; background: #fff; font-size: 15px; }
 .input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,162,74,.22); }
 textarea.input { min-height: 80px; resize: vertical; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 420px) { .row2 { grid-template-columns: 1fr; } }
 .hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 .alert { border-radius: 11px; padding: 12px 14px; font-size: 14px; }

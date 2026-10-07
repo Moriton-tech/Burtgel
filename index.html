@@ -45,7 +45,7 @@
             </div>
             <div class="total-row"><span class="muted">Нийт дүн</span><b id="total">50,000₮</b></div>
             <button class="btn btn-gold btn-lg btn-block" id="buy-btn" type="button">Тасалбар авах</button>
-            <p class="small muted" id="pay-note" style="margin:10px 0 0;text-align:center">QPay-р төлнө · QR тасалбар имэйлээр ирнэ</p>
+            <p class="small muted" id="pay-note" style="margin:10px 0 0;text-align:center">QPay-р төлнө · QR тасалбар шууд гарна</p>
           </div>
         </div>
       </aside>
@@ -86,9 +86,9 @@
       <h2>Хэрхэн авах вэ</h2>
       <p class="sub">Онлайнаар хэдхэн минутад.</p>
       <div class="steps">
-        <div class="step"><b>Тоогоо сонгоно</b><span>Нэр, утас, имэйлээ оруулна.</span></div>
+        <div class="step"><b>Тоогоо сонгоно</b><span>Нэр, утас, аймаг сум, цолоо оруулна.</span></div>
         <div class="step"><b>QPay-р төлнө</b><span>Банкны апп эсвэл QR уншуулж төлнө.</span></div>
-        <div class="step"><b>Тасалбар ирнэ</b><span>QR тасалбар дэлгэцэнд гарч, имэйлээр ирнэ.</span></div>
+        <div class="step"><b>Тасалбар ирнэ</b><span>QR тасалбар дэлгэцэнд гарна (имэйл бичвэл имэйлээр ч ирнэ).</span></div>
         <div class="step"><b>Үүдэнд уншуулна</b><span>Утсан дээрээ QR-аа үзүүлээд орно.</span></div>
       </div>
     </div>
@@ -117,7 +117,7 @@
       </div>
       <div class="panel">
         <h3 style="color:var(--navy);margin-bottom:6px">Түгээмэл асуулт</h3>
-        <details class="faq"><summary>Тасалбар маань хаана ирэх вэ?</summary><p>Төлбөр төлөгдмөгц тасалбар дэлгэц дээр гарч, таны оруулсан имэйл рүү QR кодтойгоор илгээгдэнэ. Имэйлээ олохгүй бол Spam хавтсаа шалгаарай.</p></details>
+        <details class="faq"><summary>Тасалбар маань хаана ирэх вэ?</summary><p>Төлбөр төлөгдмөгц тасалбар дэлгэц дээр гарна — нээж хадгалаарай (скриншот авч болно). Имэйл бичсэн бол QR тасалбар имэйлээр ч ирнэ (Spam хавтсаа шалгаарай).</p></details>
         <details class="faq"><summary>Нэг тасалбараар хэдэн хүн орох вэ?</summary><p>Нэг тасалбар нэг хүнд. Олон хүнд авах бол тоо ширхгээ нэмнэ — тасалбар бүр тусдаа QR кодтой.</p></details>
         <details class="faq"><summary>Сугалааны дугаар хаана байх вэ?</summary><p>Тасалбарын дугаар (жишээ нь №11111) нь таны сугалааны дугаар.</p></details>
         <details class="faq"><summary>Имэйл ирээгүй бол яах вэ?</summary><p>Доорх «Тасалбараа дахин авах» хэсэгт утас эсвэл имэйлээ оруулбал дахин илгээнэ. Эсвэл <span data-phone>7732-0404</span> дугаарт холбогдоно уу.</p></details>
@@ -152,9 +152,17 @@
       <div class="summary"><span><span id="m-qty">1</span> × <span id="m-price">50,000₮</span></span><b id="m-total">50,000₮</b></div>
       <form class="form" id="order-form" novalidate>
         <div><label for="f-name">Овог нэр <span class="req">*</span></label><input class="input" id="f-name" name="name" autocomplete="name" maxlength="80" required></div>
-        <div><label for="f-phone">Утасны дугаар <span class="req">*</span></label><input class="input" id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="99112233" maxlength="16" required></div>
-        <div><label for="f-email">Имэйл <span class="req">*</span></label><input class="input" id="f-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="ner@gmail.com" maxlength="120" required>
-          <div class="hint">QR тасалбар энэ хаяг руу очно — зөв бичээрэй.</div></div>
+        <div class="row2">
+          <div><label for="f-phone">Утасны дугаар <span class="req">*</span></label><input class="input" id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="99112233" maxlength="16" required></div>
+          <div><label for="f-phone2">Нэмэлт утас</label><input class="input" id="f-phone2" name="phone2" type="tel" inputmode="tel" placeholder="88112233" maxlength="16"></div>
+        </div>
+        <div class="row2">
+          <div><label for="f-aimag">Аймаг / хот <span class="req">*</span></label><select class="input" id="f-aimag" name="aimag" required><option value="">Сонгох…</option></select></div>
+          <div><label for="f-sum">Сум / дүүрэг <span class="req">*</span></label><input class="input" id="f-sum" name="sum" maxlength="60" placeholder="Жишээ: Хүй долоон худаг" required></div>
+        </div>
+        <div><label for="f-title">Цол <span class="req">*</span></label><select class="input" id="f-title" name="title" required><option value="">Сонгох…</option></select></div>
+        <div><label for="f-email">Имэйл <span class="muted" style="font-weight:500">(заавал биш)</span></label><input class="input" id="f-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="ner@gmail.com" maxlength="120">
+          <div class="hint">Бичвэл QR тасалбар имэйлээр ирнэ. Бичихгүй бол төлбөрийн дараа дэлгэц дээр гарах тасалбараа хадгалаарай.</div></div>
         <div class="hp" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
         <div><label for="f-qty">Тоо ширхэг</label><select class="input" id="f-qty" name="qty"></select></div>
         <div id="f-err"></div>
@@ -172,6 +180,11 @@ const $ = id => document.getElementById(id);
 let info = { price: 50000, total: 600, available: null, max_per_order: 10, event_at: '2026-10-11T02:00:00Z', location: 'Хүй долоон худаг', phone: '7732-0404', hold_minutes: 20, sales_open: true, pay_mode: 'qpay' };
 let qty = 1;
 
+const AIMAGS = ['Улаанбаатар', 'Архангай', 'Баян-Өлгий', 'Баянхонгор', 'Булган', 'Говь-Алтай', 'Говьсүмбэр', 'Дархан-Уул', 'Дорноговь', 'Дорнод', 'Дундговь', 'Завхан', 'Орхон', 'Өвөрхангай', 'Өмнөговь', 'Сүхбаатар', 'Сэлэнгэ', 'Төв', 'Увс', 'Ховд', 'Хөвсгөл', 'Хэнтий', 'Гадаад'];
+const TITLES = ['Сонирхогч', 'Залуу уяач', 'СУА', 'ААУ', 'НАУ', 'МУАУ', 'МУМУ', 'МУТМУ'];
+$('f-aimag').insertAdjacentHTML('beforeend', AIMAGS.map(a => `<option>${a}</option>`).join(''));
+$('f-title').insertAdjacentHTML('beforeend', TITLES.map(a => `<option>${a}</option>`).join(''));
+$('f-aimag').onchange = e => { $('f-sum').placeholder = e.target.value === 'Улаанбаатар' ? 'Жишээ: Сонгинохайрхан' : 'Сумын нэр'; };
 document.querySelectorAll('.incl .ico-wrap').forEach(e => e.outerHTML = ICONS.check);
 document.querySelectorAll('[data-ic]').forEach(e => e.innerHTML = ICONS[e.dataset.ic]);
 
@@ -214,7 +227,7 @@ function render() {
     ctrl.innerHTML = `<div class="soldout">${msg}</div><p class="small muted" style="margin:10px 0 0;text-align:center">Лавлах: ${esc(info.phone)}</p>`;
     $('mbar-btn').disabled = true; $('mbar-btn').textContent = msg.split(' ').slice(-1)[0] === 'дууслаа' ? 'Дууссан' : 'Хаагдсан';
   }
-  $('pay-note').textContent = info.pay_mode === 'transfer' ? 'Дансаар төлнө · QR тасалбар имэйлээр ирнэ' : 'QPay-р төлнө · QR тасалбар имэйлээр ирнэ';
+  $('pay-note').textContent = info.pay_mode === 'transfer' ? 'Дансаар төлнө · баталгаажмагц QR тасалбар гарна' : 'QPay-р төлнө · QR тасалбар шууд гарна';
   $('f-submit').textContent = info.pay_mode === 'transfer' ? 'Захиалах' : 'QPay-р төлөх';
   $('f-note').innerHTML = info.pay_mode === 'transfer'
     ? `Дараагийн алхамд дансны мэдээлэл гарна. Төлбөр баталгаажмагц тасалбар имэйлээр ирнэ.`
@@ -242,9 +255,9 @@ const modal = $('modal');
 function openModal() {
   if (salesState() !== 'open') { document.getElementById('buy').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
   const last = store.get('buyer');
-  if (last) { $('f-name').value ||= last.name || ''; $('f-phone').value ||= last.phone || ''; $('f-email').value ||= last.email || ''; }
+  if (last) for (const k of ['name', 'phone', 'phone2', 'email', 'aimag', 'sum', 'title']) { const el = $('f-' + k); if (el && !el.value && last[k]) el.value = last[k]; }
   modal.classList.add('open'); modal.setAttribute('aria-hidden', 'false');
-  setTimeout(() => ($('f-name').value ? $('f-email') : $('f-name')).focus(), 50);
+  setTimeout(() => $('f-name').focus(), 50);
 }
 function closeModal() { modal.classList.remove('open'); modal.setAttribute('aria-hidden', 'true'); }
 $('buy-btn').onclick = openModal;
@@ -259,15 +272,21 @@ $('order-form').addEventListener('submit', async e => {
   const f = e.target, err = $('f-err'), btn = $('f-submit');
   err.innerHTML = '';
   const name = f.name.value.trim(), phone = f.phone.value.trim(), email = f.email.value.trim();
+  const phone2 = f.phone2.value.trim(), aimag = f.aimag.value, sum = f.sum.value.trim(), title = f.title.value;
+  const okPhone = v => /^\+?\d{8,15}$/.test(v.replace(/[\s-]/g, ''));
   const bad = name.length < 2 ? 'Овог нэрээ оруулна уу.'
-    : !/^\+?\d{8,15}$/.test(phone.replace(/[\s-]/g, '')) ? 'Утасны дугаараа зөв оруулна уу (8 оронтой).'
-    : !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) ? 'Имэйл хаягаа зөв оруулна уу.' : '';
+    : !okPhone(phone) ? 'Утасны дугаараа зөв оруулна уу (8 оронтой).'
+    : phone2 && !okPhone(phone2) ? 'Нэмэлт утасны дугаараа зөв оруулна уу.'
+    : !aimag ? 'Аймаг / хотоо сонгоно уу.'
+    : sum.length < 2 ? 'Сум / дүүргээ бичнэ үү.'
+    : !title ? 'Цолоо сонгоно уу.'
+    : email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) ? 'Имэйл хаягаа зөв оруулна уу.' : '';
   if (bad) { err.innerHTML = `<div class="alert error">${bad}</div>`; return; }
   const label = btn.textContent;
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Түр хүлээнэ үү…';
   try {
-    const r = await api('create', { name, phone, email, qty, website: f.website.value, site: siteBase() });
-    store.set('buyer', { name, phone, email });
+    const r = await api('create', { name, phone, phone2, email, aimag, sum, title, qty, website: f.website.value, site: siteBase() });
+    store.set('buyer', { name, phone, phone2, email, aimag, sum, title });
     rememberOrder(r.code, r.key);
     location.href = `order.html?c=${encodeURIComponent(r.code)}&k=${encodeURIComponent(r.key)}`;
   } catch (ex) {
