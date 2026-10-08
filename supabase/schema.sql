@@ -392,6 +392,54 @@ begin
   return to_jsonb(d);
 end $$;
 
+-- Цуцалсан захиалга/тасалбарыг сэргээх (QR код хэвээр; дугаар нь өөр хүнд очсон бол шинэ дугаар олгоно)
+create or replace function public.parade_restore(p_order_id uuid, p_ticket_id uuid default null, p_actor text default null)
+returns jsonb language plpgsql as $$
+declare
+  s public.parade_settings;
+  o public.parade_orders;
+  t public.parade_tickets;
+  v_cnt int; v_avail int; v_new int; v_renum int := 0;
+begin
+  select * into s from public.parade_settings where id = 1 for update;
+  select * into o from public.parade_orders where id = p_order_id for update;
+  if not found then raise exception 'NOT_FOUND'; end if;
+  if o.paid_at is null then raise exception 'NOT_PAID'; end if;
+  if o.status = 'refund' then raise exception 'IS_REFUND'; end if;
+
+  select count(*) into v_cnt from public.parade_tickets
+   where order_id = o.id and status = 'cancelled' and (p_ticket_id is null or id = p_ticket_id);
+  if v_cnt = 0 then raise exception 'NOTHING_TO_RESTORE'; end if;
+
+  v_avail := public.parade_available(o.id);
+  if v_cnt > v_avail then raise exception 'SOLD_OUT:%', greatest(v_avail, 0); end if;
+
+  for t in select * from public.parade_tickets
+            where order_id = o.id and status = 'cancelled' and (p_ticket_id is null or id = p_ticket_id)
+            order by number loop
+    if not exists (select 1 from public.parade_tickets x where x.number = t.number and x.status = 'valid') then
+      update public.parade_tickets set status = 'valid', cancelled_at = null where id = t.id;
+    else
+      select n into v_new from generate_series(s.start_no, s.start_no + s.total - 1) as n
+       where not exists (select 1 from public.parade_tickets x where x.number = n and x.status = 'valid')
+       order by n limit 1;
+      if v_new is null then raise exception 'NO_NUMBERS'; end if;
+      update public.parade_tickets set status = 'valid', cancelled_at = null, number = v_new where id = t.id;
+      v_renum := v_renum + 1;
+    end if;
+  end loop;
+
+  update public.parade_orders
+     set status = 'paid', note = concat_ws(' · ', note, 'Сэргээсэн: ' || coalesce(p_actor, '')), updated_at = now()
+   where id = o.id returning * into o;
+  insert into public.parade_log (actor, action, detail)
+  values (coalesce(p_actor, 'system'), 'restore', jsonb_build_object('code', o.code, 'restored', v_cnt, 'renumbered', v_renum));
+
+  return jsonb_build_object('ok', true, 'restored', v_cnt, 'renumbered', v_renum, 'order', to_jsonb(o),
+    'tickets', (select jsonb_agg(jsonb_build_object('number', x.number, 'token', x.token) order by x.number)
+                  from public.parade_tickets x where x.order_id = o.id and x.status = 'valid'));
+end $$;
+
 -- Самбарын тоо баримт
 create or replace function public.parade_stats() returns jsonb
 language sql stable as $$
@@ -428,7 +476,7 @@ begin
     'parade_token()', 'parade_code()', 'parade_sales_close(public.parade_settings)', 'parade_available(uuid)',
     'parade_public_info()', 'parade_create_order(text,text,text,int,text,text)',
     'parade_finalize_order(uuid,text,int,text,text)', 'parade_issue_manual(text,text,text,int,text,int,text,text)',
-    'parade_scan(text,text,text)', 'parade_draw(text,text,text)', 'parade_stats()'] loop
+    'parade_scan(text,text,text)', 'parade_draw(text,text,text)', 'parade_stats()', 'parade_restore(uuid,uuid,text)'] loop
     execute format('revoke all on function public.%s from public, anon, authenticated', f);
     execute format('grant execute on function public.%s to service_role', f);
   end loop;

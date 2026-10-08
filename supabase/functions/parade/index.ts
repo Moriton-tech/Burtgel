@@ -68,6 +68,9 @@ const DB_ERRORS: Record<string, string> = {
   NOT_FOUND: 'Захиалга олдсонгүй.',
   NO_NUMBERS: 'Тасалбарын дугаар хүрэлцэхгүй байна.',
   NO_CANDIDATES: 'Сугалаанд оролцох тасалбар алга (өмнө нь бүгд хожсон эсвэл хэн ч ирээгүй).',
+  NOT_PAID: 'Төлөгдөөгүй захиалгыг сэргээх боломжгүй.',
+  IS_REFUND: 'Буцаалтын төлөвтэй захиалгыг сэргээх боломжгүй.',
+  NOTHING_TO_RESTORE: 'Сэргээх цуцлагдсан тасалбар алга.',
 };
 function dbError(e: { message?: string }): HttpError {
   const m = String(e?.message || e);
@@ -565,6 +568,18 @@ async function admin(action: string, b: any, req: Request) {
       await q(db.from('parade_orders').update({ status: o.status === 'refund' ? 'refund' : 'cancelled', note, updated_at: new Date().toISOString() }).eq('id', o.id));
       log(me.email, 'cancel_order', { code: o.code, status: o.status });
       return { ok: true };
+    }
+
+    case 'admin_order_restore':
+    case 'admin_ticket_restore': {                   // санамсаргүй цуцалсныг буцаах
+      let orderId = b.id;
+      if (action === 'admin_ticket_restore') {
+        const t = await q(db.from('parade_tickets').select('order_id').eq('id', b.id).single());
+        orderId = t.order_id;
+      }
+      const r = await rpc('parade_restore', { p_order_id: orderId, p_ticket_id: action === 'admin_ticket_restore' ? b.id : null, p_actor: me.email });
+      if (r.renumbered > 0) background(sendOrderEmails(orderId, { force: true }));   // дугаар өөрчлөгдсөн бол шинэ тасалбар имэйлээр
+      return r;
     }
 
     case 'admin_order_refunded': {                   // буцаалт хийгдсэн гэж тэмдэглэх

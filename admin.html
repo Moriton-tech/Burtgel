@@ -427,6 +427,7 @@ function renderOrders() {
     if (['pending', 'expired'].includes(o.status)) acts.push(`<button class="btn btn-ok btn-sm" data-a="confirm" data-id="${o.id}">Баталгаажуулах</button>`);
     if (o.status === 'paid') acts.push(`<button class="btn btn-light btn-sm" data-a="resend" data-id="${o.id}">Имэйл дахин</button>`);
     if (o.status === 'refund') acts.push(`<button class="btn btn-light btn-sm" data-a="refunded" data-id="${o.id}">Буцаасан ✓</button>`);
+    if (o.status === 'cancelled' && o.paid_at) acts.push(`<button class="btn btn-ok btn-sm" data-a="restore" data-id="${o.id}">↩ Сэргээх</button>`);
     acts.push(`<button class="btn btn-light btn-sm" data-a="edit" data-id="${o.id}">Засах</button>`);
     if (['pending', 'paid'].includes(o.status)) acts.push(`<button class="btn btn-light btn-sm" style="color:var(--red)" data-a="cancel" data-id="${o.id}">Цуцлах</button>`);
     return `<tr>
@@ -452,10 +453,11 @@ $('o-body').onclick = async e => {
     else if (a === 'edit') return editModal(o);
     else if (a === 'resend') { b.disabled = true; await api('admin_resend', { id: o.id }); toast('Имэйл илгээлээ: ' + o.email); }
     else if (a === 'refunded') { if (!confirm(`${o.code}: мөнгийг буцаасан гэж тэмдэглэх үү?`)) return; await api('admin_order_refunded', { id: o.id }); toast('Тэмдэглэлээ'); }
-    else if (a === 'cancel') {
-      const reason = prompt(`${o.code} (${o.name}, ${o.qty} ш) захиалгыг цуцлах уу?${o.status === 'paid' ? '\nТасалбарууд нь хүчингүй болно. Мөнгө буцаалтыг тусад нь хийнэ.' : ''}\n\nШалтгаан:`, '');
-      if (reason === null) return;
-      await api('admin_order_cancel', { id: o.id, reason }); toast('Цуцаллаа');
+    else if (a === 'cancel') return cancelModal(o);
+    else if (a === 'restore') {
+      b.disabled = true;
+      const r = await api('admin_order_restore', { id: o.id });
+      toast(r.renumbered ? `Сэргээлээ. ${r.renumbered} тасалбарын дугаар өөр хүнд очсон тул шинэ дугаар олгож, имэйлээр илгээлээ.` : `Сэргээлээ: ${r.restored} тасалбар, дугаар хэвээр.`, 6000);
     }
     await loadOrders();
   } catch (ex) { toast(ex.message, 4000); b.disabled = false; }
@@ -474,6 +476,25 @@ function confirmModal(o) {
     e.preventDefault();
     try { await api('admin_order_confirm', { id: o.id, method: e.target.method.value }); closeModal(); toast('Баталгаажлаа'); loadOrders(); }
     catch (ex) { $('cf-err').innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; }
+  };
+}
+function cancelModal(o) {
+  const paid = o.status === 'paid';
+  modal('Захиалга цуцлах', `<div class="alert ${paid ? 'error' : 'warn'}"><b>${esc(o.code)}</b> · ${esc(o.name)} · ${o.qty} ш · ${money(o.paid_amount ?? o.amount)}<br>
+    ${paid ? 'Энэ захиалга <b>төлөгдсөн</b>. Цуцалбал тасалбарууд нь хүчингүй болж, дугаар нь чөлөөлөгдөнө. Мөнгө буцаалтыг тусад нь хийнэ.' : 'Төлбөр хүлээж буй захиалга. Суудал нь чөлөөлөгдөнө.'}</div>
+    <form class="form" id="xf" style="margin-top:12px">
+      <div><label>Шалтгаан</label><input class="input" name="reason" placeholder="Жишээ: худалдан авагч хүсэлт гаргасан"></div>
+      ${paid ? '<label class="switch"><input type="checkbox" name="sure"> Тийм, төлөгдсөн захиалгыг цуцлахыг ойлгож байна</label>' : ''}
+      <div id="xf-err"></div>
+      <div class="row"><button type="button" class="btn btn-light" id="xf-no">Болих</button><button class="btn btn-danger" ${paid ? 'disabled' : ''} id="xf-yes">Цуцлах</button></div>
+      <p class="small muted" style="margin:0">Андуурсан бол дараа нь «↩ Сэргээх» товчоор буцааж болно (QR код хэвээр үлдэнэ).</p>
+    </form>`);
+  $('xf-no').onclick = closeModal;
+  if (paid) $('xf').sure.onchange = e => { $('xf-yes').disabled = !e.target.checked; };
+  $('xf').onsubmit = async e => {
+    e.preventDefault();
+    try { await api('admin_order_cancel', { id: o.id, reason: e.target.reason.value }); closeModal(); toast('Цуцаллаа'); loadOrders(); }
+    catch (ex) { $('xf-err').innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; }
   };
 }
 function editModal(o) {
@@ -527,7 +548,7 @@ function renderTickets() {
         ${v && t.entry_at ? `<button class="btn btn-light btn-sm" data-a="reset" data-m="entry" data-id="${t.id}">Орсныг буцаах</button>` : ''}
         ${v && t.food_at ? `<button class="btn btn-light btn-sm" data-a="reset" data-m="food" data-id="${t.id}">Хоол буцаах</button>` : ''}
         ${v && t.drink_at ? `<button class="btn btn-light btn-sm" data-a="reset" data-m="drink" data-id="${t.id}">Ундаа буцаах</button>` : ''}
-        ${v ? `<button class="btn btn-light btn-sm" style="color:var(--red)" data-a="cancel" data-id="${t.id}">Цуцлах</button>` : ''}
+        ${v ? `<button class="btn btn-light btn-sm" style="color:var(--red)" data-a="cancel" data-id="${t.id}">Цуцлах</button>` : `<button class="btn btn-ok btn-sm" data-a="restore" data-id="${t.id}">↩ Сэргээх</button>`}
       </div></td></tr>`;
   }).join('') || '<tr><td colspan="8" class="muted">Тасалбар алга.</td></tr>';
 }
@@ -537,7 +558,8 @@ $('t-body').onclick = async e => {
   const b = e.target.closest('button[data-a]'); if (!b) return;
   const t = tickets.find(x => x.id === b.dataset.id);
   try {
-    if (b.dataset.a === 'cancel') { if (!confirm(`№${t.number} тасалбарыг цуцлах уу? QR нь хүчингүй болж, дугаар нь чөлөөлөгдөнө.`)) return; await api('admin_ticket_cancel', { id: t.id }); }
+    if (b.dataset.a === 'cancel') { if (!confirm(`№${t.number} тасалбарыг цуцлах уу?\n\nQR нь хүчингүй болж, дугаар нь чөлөөлөгдөнө. Андуурвал «Сэргээх» товчоор буцаана.`)) return; await api('admin_ticket_cancel', { id: t.id }); }
+    else if (b.dataset.a === 'restore') { const r = await api('admin_ticket_restore', { id: t.id }); toast(r.renumbered ? 'Сэргээлээ — дугаар нь өөр хүнд очсон тул шинэ дугаар олгож имэйлээр илгээлээ.' : 'Сэргээлээ, дугаар хэвээр.', 6000); }
     else { await api('admin_ticket_reset', { id: t.id, mode: b.dataset.m }); }
     toast('Хадгаллаа'); loadTickets();
   } catch (ex) { toast(ex.message); }
